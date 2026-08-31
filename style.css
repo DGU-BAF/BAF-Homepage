@@ -780,17 +780,7 @@ svg{display:block}
 }
 .flow-meta:empty{display:none}
 
-/* 합격이 확정되는 지점 */
-.flow li.is-key .flow-label{color:var(--blue)}
-.flow li.is-key .flow-dot{
-  border-color:transparent;
-  background:linear-gradient(140deg,var(--blue),var(--blue-2));
-  box-shadow:0 4px 14px rgba(13,94,186,.32);
-}
-.flow li.is-key .flow-dot b{color:#fff}
-.flow li.is-key .flow-meta{color:var(--blue);font-weight:600}
 .flow li:hover .flow-dot{transform:translateY(-2px);border-color:var(--blue-3)}
-.flow li.is-key:hover .flow-dot{border-color:transparent}
 
 /* 넓은 화면: 라벨 위 · 노드 · 부가정보 아래로 나란히 */
 @media (min-width:861px){
@@ -819,8 +809,6 @@ svg{display:block}
   }
   @keyframes flowSweep{from{background-position:-25% 0}to{background-position:125% 0}}
 
-  .flow li.is-key .flow-dot{width:46px;height:46px}
-  .flow li.is-key .flow-dot b{font-size:16px}
 }
 
 @media (prefers-reduced-motion:reduce){
