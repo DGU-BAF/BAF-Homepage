@@ -875,6 +875,7 @@ async function initNotice() {
   const count = $('#noticeCount');
   const pager = $('#noticePager');
   if (!list) return;
+  singleOpenDetails(list);
 
   const PER_PAGE = 10;
   let page = 1;
@@ -972,6 +973,7 @@ async function initFaq() {
       <summary>${esc(f.q)}</summary>
       <p>${esc(f.a)}</p>
     </details>`).join('');
+  singleOpenDetails(box);
 }
 
 /* ------------------------------------------------------------
@@ -987,21 +989,73 @@ function initAwards() {
     </div>`).join('');
 }
 
+/* 컨테이너 안 <details>를 한 번에 하나만 열리게 한다 (toggle은 버블 안 하므로 캡처로 위임) */
+function singleOpenDetails(box) {
+  if (!box) return;
+  box.addEventListener('toggle', (e) => {
+    const t = e.target;
+    if (t.tagName === 'DETAILS' && t.open) {
+      box.querySelectorAll('details[open]').forEach((d) => { if (d !== t) d.open = false; });
+    }
+  }, true);
+}
+
+/* ------------------------------------------------------------
+   FOOTER 아코디언 — 모바일에서 3개 컬럼을 탭으로 접는다
+   ------------------------------------------------------------ */
+function initFooterAccordion() {
+  const top = $('.footer-top');
+  if (!top) return;
+  const cols = [...top.children].filter((d) => d.querySelector('h4'));
+  if (cols.length < 2) return;
+
+  /* 3개 컬럼을 래퍼로 묶는다. 데스크탑에선 display:contents라 레이아웃 그대로. */
+  const wrap = document.createElement('div');
+  wrap.className = 'footer-cols';
+  top.insertBefore(wrap, cols[0]);
+  cols.forEach((c) => wrap.appendChild(c));
+
+  cols.forEach((col) => {
+    const h = col.querySelector('h4');
+    h.setAttribute('role', 'button');
+    h.setAttribute('tabindex', '0');
+    h.setAttribute('aria-expanded', 'false');
+    const toggle = () => {
+      const willOpen = !col.classList.contains('is-open');
+      cols.forEach((c) => {
+        c.classList.remove('is-open');
+        c.querySelector('h4').setAttribute('aria-expanded', 'false');
+      });
+      if (willOpen) {
+        col.classList.add('is-open');
+        h.setAttribute('aria-expanded', 'true');
+      }
+    };
+    h.addEventListener('click', toggle);
+    h.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+  });
+}
+
 /* ------------------------------------------------------------
    BOOT
    ------------------------------------------------------------ */
 document.addEventListener('DOMContentLoaded', () => {
   initNav();
+  initFooterAccordion();
   initApply();
   initHero();
   initHeroType();
-  initMembers();
-  initQuotes();
-  initHistory();
-  initArchive();
-  initNotice();
-  initFaq();
-  initAwards();
+  const pending = [
+    initMembers(),
+    initQuotes(),
+    initHistory(),
+    initArchive(),
+    initNotice(),
+    initFaq(),
+    initAwards(),
+  ];
   initAwardsMarquee();
   initSubTabs();
   initScrollProgress();
@@ -1009,4 +1063,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const year = $('#year');
   if (year) year.textContent = new Date().getFullYear();
+
+  /* 목록이 async로 늦게 채워지면 앵커 위치가 밀려 엉뚱한 섹션에 멈춘다.
+     렌더가 끝난 뒤 해시 위치로 다시 스크롤해 보정한다. */
+  if (location.hash) {
+    Promise.allSettled(pending).then(() => {
+      const el = document.getElementById(location.hash.slice(1));
+      if (el) el.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'start' });
+    });
+  }
 });
