@@ -9,7 +9,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=1">
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QDEGRTZ1ZK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-QDEGRTZ1ZK');
+</script>
 </head>
 <body data-page="home">
 <a class="skip" href="#main">본문으로 건너뛰기</a>
@@ -26,7 +34,6 @@
 
     <nav class="nav" id="nav" aria-label="주요 메뉴">
       <ul class="nav-list">
-        <li class="nav-item"><a class="nav-link" data-page="home" href="index.html">홈</a></li>
         <li class="nav-item has-sub">
           <a class="nav-link" data-page="about" href="about.html">학회소개
             <svg class="nav-caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 8.6 1.2 3.8h9.6z"/></svg>
@@ -69,7 +76,6 @@
   <section class="hero">
     <canvas id="heroCanvas" aria-hidden="true"></canvas>
     <div class="wrap hero-inner">
-      <p class="hero-kicker">Dongguk Univ. Big Data Association</p>
       <h1>
         <span class="hero-title">welcome to</span>
         <span class="hero-brand">B.a.f</span>
@@ -91,12 +97,18 @@
         <h2 class="h-section">주요 활동</h2>
       </div>
 
+      <div class="act-timeline reveal" aria-hidden="true">
+        <div class="act-tl-node"><span class="act-tl-dot"></span><span class="act-tl-period">합격 이후</span></div>
+        <div class="act-tl-node"><span class="act-tl-dot"></span><span class="act-tl-period">3 – 6월</span></div>
+        <div class="act-tl-node"><span class="act-tl-dot"></span><span class="act-tl-period">7 – 8월</span></div>
+        <div class="act-tl-node"><span class="act-tl-dot"></span><span class="act-tl-period">9 – 12월</span></div>
+        <div class="act-tl-node"><span class="act-tl-dot"></span><span class="act-tl-period">1 – 2월</span></div>
+      </div>
+
       <div class="grid grid-5 act-flow">
         <a class="act-card reveal" href="about.html#activities" data-reveal-index="0">
           <figure>
-            <img src="assets/session-onboarding.jpg" alt="신입 교육" loading="lazy" width="960" height="1010">
-            <span class="act-period">합격 이후</span>
-          </figure>
+            <img src="assets/session-onboarding.png" alt="신입 교육" loading="lazy" width="1448" height="1086">          </figure>
           <div class="act-card-body">
             <span class="act-card-num">01</span>
             <h3>신입 교육<span class="en">Onboarding</span></h3>
@@ -105,21 +117,17 @@
 
         <a class="act-card reveal" href="about.html#activities" data-reveal-index="1">
           <figure>
-            <img src="assets/session-project-1.jpg" alt="상반기 프로젝트" loading="lazy" width="960" height="1006">
-            <span class="act-period">3월 – 6월</span>
-          </figure>
+            <img src="assets/session-project-1.png" alt="상반기 프로젝트" loading="lazy" width="1448" height="1086">          </figure>
           <div class="act-card-body">
             <span class="act-card-num">02</span>
             <h3>상반기 프로젝트<span class="en">Spring Project</span></h3>
-            <span class="act-side">+ SQL 스터디</span>
+            <span class="act-side">+ SQL CHALLENGE</span>
           </div>
         </a>
 
         <a class="act-card reveal" href="about.html#activities" data-reveal-index="2">
           <figure>
-            <img src="assets/session-competition.jpg" alt="공모전" loading="lazy" width="960" height="1010">
-            <span class="act-period">7월 – 8월</span>
-          </figure>
+            <img src="assets/session-competition.png" alt="공모전" loading="lazy" width="1448" height="1086">          </figure>
           <div class="act-card-body">
             <span class="act-card-num">03</span>
             <h3>공모전<span class="en">Competition</span></h3>
@@ -128,21 +136,17 @@
 
         <a class="act-card reveal" href="about.html#activities" data-reveal-index="3">
           <figure>
-            <img src="assets/session-project-2.jpg" alt="하반기 프로젝트" loading="lazy" width="960" height="1010">
-            <span class="act-period">9월 – 12월</span>
-          </figure>
+            <img src="assets/session-project-2.png" alt="하반기 프로젝트" loading="lazy" width="1448" height="1086">          </figure>
           <div class="act-card-body">
             <span class="act-card-num">04</span>
             <h3>하반기 프로젝트<span class="en">Fall Project</span></h3>
-            <span class="act-side">+ SQL 스터디</span>
+            <span class="act-side">+ SQL CHALLENGE</span>
           </div>
         </a>
 
         <a class="act-card reveal" href="about.html#activities" data-reveal-index="4">
           <figure>
-            <img src="assets/session-study.jpg" alt="스터디" loading="lazy" width="960" height="1010">
-            <span class="act-period">1월 – 2월</span>
-          </figure>
+            <img src="assets/session-study.png" alt="스터디" loading="lazy" width="1448" height="1086">          </figure>
           <div class="act-card-body">
             <span class="act-card-num">05</span>
             <h3>스터디<span class="en">Winter Study</span></h3>
@@ -325,7 +329,6 @@
         <h4>Contact</h4>
         <ul class="footer-links">
           <li>서울특별시 중구 필동로1길 30<br>동국대학교 과학관 1층 AH 실</li>
-          <li><a href="tel:01067480213">010-6748-0213</a></li>
           <li><a href="mailto:dgstatbaf@gmail.com">dgstatbaf@gmail.com</a></li>
           <li class="footer-social">
             <a href="https://www.instagram.com/bafdgu/" target="_blank" rel="noopener" aria-label="Instagram">
@@ -348,6 +351,6 @@
   </div>
 </footer>
 
-<script src="script.js"></script>
+<script src="script.js?v=8"></script>
 </body>
 </html>

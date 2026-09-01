@@ -1,0 +1,147 @@
+/* ============================================================
+   B.a.f 관리자 페이지 스타일 (style.css 토큰 재사용)
+   ============================================================ */
+.admin-body{
+  background:var(--bg-alt);
+  min-height:100vh;
+  color:var(--ink-2);
+}
+
+/* hidden 속성이 display 규칙보다 우선하도록 (로그인↔대시보드 전환) */
+.login-view[hidden],
+.dash-view[hidden]{display:none}
+
+/* ---------- 로그인 ---------- */
+.login-view{
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;
+}
+.login-card{
+  width:100%;max-width:400px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-md);
+  padding:40px 32px;
+  display:flex;flex-direction:column;gap:16px;
+}
+.login-logo{margin:0 auto 6px}
+.login-title{
+  font-size:20px;font-weight:700;color:var(--ink);
+  text-align:center;margin-bottom:8px;
+}
+.login-card .btn{width:100%;margin-top:6px}
+
+/* ---------- 공통 필드 ---------- */
+.field{display:flex;flex-direction:column;gap:6px;font-size:14px}
+.field > span{font-weight:600;color:var(--ink)}
+.field input,
+.field textarea,
+.field select{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:var(--r-sm);
+  background:#fff;
+  font-size:15px;
+  transition:border-color .2s var(--ease),box-shadow .2s var(--ease);
+}
+.field input:focus,
+.field textarea:focus,
+.field select:focus{
+  outline:none;
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(13,94,186,.12);
+}
+.field textarea{resize:vertical;font-family:var(--sans);line-height:1.7}
+.check{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--ink)}
+.check input{width:16px;height:16px;accent-color:var(--blue)}
+.file-current{color:var(--muted);font-size:12px}
+
+.form-error{
+  color:#c0392b;font-size:13px;
+  background:#fdecea;border:1px solid #f5c6cb;
+  border-radius:var(--r-sm);padding:8px 12px;margin:0;
+}
+
+/* ---------- 대시보드 레이아웃 ---------- */
+.dash-view{max-width:var(--wrap);margin:0 auto;padding:24px}
+.admin-top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px;margin-bottom:20px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);
+}
+.admin-brand{display:flex;align-items:center;gap:12px}
+.admin-brand-label{
+  font-size:13px;font-weight:700;color:var(--blue);
+  padding:4px 11px;border-radius:999px;background:var(--tint);
+}
+.admin-top-right{display:flex;align-items:center;gap:14px}
+.user-email{font-size:13px;color:var(--muted)}
+
+/* ---------- 탭 ---------- */
+.admin-tabs{display:flex;gap:8px;margin-bottom:20px}
+.admin-tab{
+  padding:10px 22px;border-radius:999px;
+  font-size:15px;font-weight:600;color:var(--ink-2);
+  background:var(--surface);border:1px solid var(--line);
+  transition:all .2s var(--ease);
+}
+.admin-tab:hover{color:var(--blue)}
+.admin-tab.is-active{
+  background:var(--blue);color:#fff;border-color:var(--blue);
+  box-shadow:0 4px 14px rgba(13,94,186,.24);
+}
+
+/* ---------- 카드 그리드 ---------- */
+.admin-grid{
+  display:grid;
+  grid-template-columns:minmax(0,7fr) minmax(0,3fr);
+  gap:20px;align-items:start;
+}
+.card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);
+  padding:24px;
+}
+.card h2{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:16px}
+.form-card form{display:flex;flex-direction:column;gap:14px}
+.form-actions{display:flex;gap:8px;margin-top:4px}
+
+/* ---------- 목록 ---------- */
+.admin-list{display:flex;flex-direction:column;gap:10px}
+.admin-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:var(--r-sm);
+  background:var(--bg);
+}
+.admin-row-main{min-width:0;flex:1}
+.admin-row-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.admin-row-title{font-weight:600;color:var(--ink);font-size:15px}
+.admin-row-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.admin-badge{
+  display:inline-block;padding:2px 10px;border-radius:999px;
+  font-size:11px;font-weight:700;
+  background:var(--tint);color:var(--blue);
+}
+.admin-badge--pin{background:#fdeede;color:#c47b00}
+.admin-row-actions{display:flex;gap:6px;flex-shrink:0}
+.admin-row-actions .btn{padding:6px 14px;font-size:13px}
+.btn.danger{color:#c0392b}
+.btn.danger:hover{background:#fdecea}
+
+/* ---------- 반응형 ---------- */
+@media (max-width:860px){
+  .admin-grid{grid-template-columns:1fr}
+  .admin-top{flex-direction:column;gap:12px;align-items:stretch}
+  .admin-row{flex-direction:column;align-items:stretch}
+  .admin-row-actions{justify-content:flex-end}
+}
