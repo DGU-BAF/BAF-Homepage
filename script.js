@@ -995,13 +995,15 @@ document.addEventListener('DOMContentLoaded', () => {
   initApply();
   initHero();
   initHeroType();
-  initMembers();
-  initQuotes();
-  initHistory();
-  initArchive();
-  initNotice();
-  initFaq();
-  initAwards();
+  const pending = [
+    initMembers(),
+    initQuotes(),
+    initHistory(),
+    initArchive(),
+    initNotice(),
+    initFaq(),
+    initAwards(),
+  ];
   initAwardsMarquee();
   initSubTabs();
   initScrollProgress();
@@ -1009,4 +1011,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const year = $('#year');
   if (year) year.textContent = new Date().getFullYear();
+
+  /* 목록이 async로 늦게 채워지면 앵커 위치가 밀려 엉뚱한 섹션에 멈춘다.
+     렌더가 끝난 뒤 해시 위치로 다시 스크롤해 보정한다. */
+  if (location.hash) {
+    Promise.allSettled(pending).then(() => {
+      const el = document.getElementById(location.hash.slice(1));
+      if (el) el.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'start' });
+    });
+  }
 });
