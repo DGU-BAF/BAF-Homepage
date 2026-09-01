@@ -10,6 +10,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QDEGRTZ1ZK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-QDEGRTZ1ZK');
+</script>
 </head>
 <body data-page="archive">
 <a class="skip" href="#main">본문으로 건너뛰기</a>
@@ -26,7 +34,6 @@
 
     <nav class="nav" id="nav" aria-label="주요 메뉴">
       <ul class="nav-list">
-        <li class="nav-item"><a class="nav-link" data-page="home" href="index.html">홈</a></li>
         <li class="nav-item has-sub">
           <a class="nav-link" data-page="about" href="about.html">학회소개
             <svg class="nav-caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 8.6 1.2 3.8h9.6z"/></svg>
@@ -165,7 +172,6 @@
         <h4>Contact</h4>
         <ul class="footer-links">
           <li>서울특별시 중구 필동로1길 30<br>동국대학교 과학관 1층 AH 실</li>
-          <li><a href="tel:01067480213">010-6748-0213</a></li>
           <li><a href="mailto:dgstatbaf@gmail.com">dgstatbaf@gmail.com</a></li>
           <li class="footer-social">
             <a href="https://www.instagram.com/bafdgu/" target="_blank" rel="noopener" aria-label="Instagram">
@@ -188,6 +194,8 @@
   </div>
 </footer>
 
-<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js?v=1"></script>
+<script src="script.js?v=2"></script>
 </body>
 </html>

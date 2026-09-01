@@ -175,7 +175,7 @@ const NOTICES = [
 /* 자주 묻는 질문 (notice.html #faq) */
 const FAQS = [
   { q: '새로운 기수는 언제 모집하나요?',
-    a: '1년에 두 번 기수 모집을 시행합니다. 6월 중순, 12월 중순에 통계학과 학년별 단톡에 모집공고가 올라가니 참고해 주세요.' },
+    a: '신입 기수 모집은 매년 6월과 12월 중순에 진행됩니다. 모집 공고는 통계학과 학년별 단체 채팅방을 통해 안내되니 참고 바랍니다.' },
   { q: '학년 제한이 있나요?',
     a: '비어플 지원은 2학년 1학기까지를 수료하신 후 할 수 있습니다.' },
   { q: '세션은 어디서 진행되나요?',
@@ -184,31 +184,40 @@ const FAQS = [
 
 /* 설립 및 연혁 (about.html #history) */
 const HISTORY = [
+  { year: '2025', items: [
+    '한국문화관광연구원 관광데이터 분석 공모전 대상',
+    '한국토지주택공사 국토도시 아이디어 공모전 최우수상',
+    '제23회 통계청 논문공모전 장려상',
+    '운수종사자 인지적 특성 데이터를 활용한 교통사고 위험 예측 AI 경진대회 대상',
+    '스마트 해운물류 x AI 미션 챌린지 대상',
+    '2025 날씨 빅데이터 콘테스트 최우수상',
+    '2025 대한디지털헬스학회 춘계학술대회 우수상' ] },
   { year: '2024', items: [
+    '2024 NH투자증권 빅데이터 경진대회 대상',
     '2024 관세청 공공데이터 활용·분석 경진대회 최우수상',
     '제 12회 빅콘테스트 데이터활용부문-부동산 최우수상',
-    '2024 NH투자증권 빅데이터 경진대회 대상',
     '2024 NH투자증권 빅데이터 경진대회 입선',
     '제19회 이과대학 재학생 연구프로젝트 경진대회 최우수상',
     { text: '제 4회 비어플의 밤', badge: 'EVENT' } ] },
   { year: '2023', items: [
     '2023 미래에셋증권 x 네이버클라우드 빅데이터 페스티벌 최우수상',
     '날씨 빅데이터 콘테스트 입선',
-    '동국대 x 네이버 부스트코스 데이터사이언스 2기 우수상',
-    '통계 데이터 분석활용 대회 보고서부문 장려상',
     'KSDC DB 양적자료 활용대회 최우수상',
+    '휴대용 피부진단 데이터를 활용한 피부정밀진단 예측 AI 경진대회 최우수상',
+    '통계 데이터 분석활용 대회 보고서부문 장려상',
     '제5회 서울교육 데이터 활용 아이디어 공모전 장려상',
     '제18회 이과대학 재학생 연구프로젝트 경진대회 최우수상',
+    '동국대 x 네이버 부스트코스 데이터사이언스 2기 우수상',
     { text: '제 3회 비어플의 밤', badge: 'EVENT' } ] },
   { year: '2022', items: [
     'AI Hub 인공지능 학습용 데이터 활용 공모전 입상',
     { text: '제 2회 비어플의 밤', badge: 'EVENT' } ] },
   { year: '2021', items: [
     'kt 통신망 안정성 확보 AI 해커톤 최우수상',
-    '2021 민원 데이터 분석 경진대회 장려상',
     '2021 스마트농업 인공지능 경진대회 우수상',
+    '상추 생육환경 생성 AI 공모전 2위',
     '제주도 교통량 예측 공모전 3위',
-    '상추 생육환경 생성 AI 공모전 2위' ] },
+    '2021 민원 데이터 분석 경진대회 장려상' ] },
   { year: '2020', items: [
     '2020년 빅콘테스트 최우수상',
     '2020년 Samsung Card Data Competition 2위' ] },
@@ -224,33 +233,41 @@ const HISTORY = [
 
 /* 역대 수상 내역 (notice.html 하단) */
 const AWARDS = [
-  { period: '2018 – 2019', items: [
+  { period: '2018 – 2020', items: [
     '제 16회 SAS 분석 챔피언십 대상',
     '제 17회 SAS 분석 챔피언십 대상',
-    '제 17회 SAS 분석 챔피언십 금상' ] },
-  { period: '2020', items: [
     '2020년 빅콘테스트 최우수상',
+    '제 17회 SAS 분석 챔피언십 금상',
     '2020년 Samsung Card Data Competition 2위' ] },
   { period: '2021 – 2022', items: [
     'kt 통신망 안정성 확보 AI 해커톤 최우수상',
-    '2021 민원 데이터분석 경진대회 장려상',
-    '2021 스마트농업 인공지능 경진대회 3위',
-    '제주도 교통량 예측 공모전 3위',
+    'AI Hub 인공지능 학습용 데이터 활용 공모전 입상',
+    '2021 스마트농업 인공지능 경진대회 우수상',
     '상추 생육환경 생성 AI 공모전 2위',
-    'AI Hub 인공지능 학습용 데이터 활용 공모전 입상' ] },
+    '제주도 교통량 예측 공모전 3위',
+    '2021 민원 데이터분석 경진대회 장려상' ] },
   { period: '2023', items: [
+    '2023 미래에셋증권 x 네이버클라우드 빅데이터 페스티벌 최우수상',
     '날씨 빅데이터 콘테스트 입선',
-    '제18회 이과대학 재학생 연구프로젝트 경진대회 최우수상',
-    '동국대 X 네이버 부스트코스 데이터사이언스 2기 우수상',
     'KSDC DB 양적자료 활용대회 최우수상',
+    '휴대용 피부진단 데이터를 활용한 피부정밀진단 예측 AI 경진대회 최우수상',
     '제5회 서울교육 데이터 활용 아이디어 공모전 장려상',
-    '2023 미래에셋증권 x 네이버클라우드 빅데이터 페스티벌 최우수상' ] },
+    '제18회 이과대학 재학생 연구프로젝트 경진대회 최우수상',
+    '동국대 X 네이버 부스트코스 데이터사이언스 2기 우수상' ] },
   { period: '2024', items: [
     '2024 NH투자증권 빅데이터 경진대회 대상',
     '2024 관세청 공공데이터 활용·분석 경진대회 최우수상',
     '제 12회 빅콘테스트 데이터활용부문-부동산 최우수상',
     '2024 NH투자증권 빅데이터 경진대회 입선',
-    '제19회 이과대학 재학생 연구프로젝트 경진대회 최우수상' ] }
+    '제19회 이과대학 재학생 연구프로젝트 경진대회 최우수상' ] },
+  { period: '2025', items: [
+    '한국문화관광연구원 관광데이터 분석 공모전 대상',
+    '한국토지주택공사 국토도시 아이디어 공모전 최우수상',
+    '제23회 통계청 논문공모전 장려상',
+    '운수종사자 인지적 특성 데이터를 활용한 교통사고 위험 예측 AI 경진대회 대상',
+    '스마트 해운물류 x AI 미션 챌린지 대상',
+    '2025 날씨 빅데이터 콘테스트 최우수상',
+    '2025 대한디지털헬스학회 춘계학술대회 우수상' ] }
 ];
 
 /* ------------------------------------------------------------
@@ -262,6 +279,21 @@ const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)')
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => (
   { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
 ));
+
+/* 상 등급 단어에 색 강조: 대상=골드, 최우수상=블루, 우수상=하늘, 그 외=회색 */
+function prizeHTML(text) {
+  const TIERS = [
+    ['최우수상', 'blue'], ['우수상', 'sky'], ['대상', 'gold'], ['금상', 'gold'],
+    ['장려상', 'gray'], ['입선', 'gray'], ['입상', 'gray'], ['2위', 'gray'], ['3위', 'gray']
+  ];
+  for (const [kw, tier] of TIERS) {
+    const i = text.lastIndexOf(kw);
+    if (i !== -1) {
+      return `${esc(text.slice(0, i))}<span class="prize prize--${tier}">${esc(kw)}</span>${esc(text.slice(i + kw.length))}`;
+    }
+  }
+  return esc(text);
+}
 
 /* ------------------------------------------------------------
    NAV — 플로팅 반투명 네비게이션
@@ -346,15 +378,25 @@ function initApply() {
   if (!note) return;
   note.textContent = APPLY.message;
 
-  const close = () => { note.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const open = note.hidden;
-    note.hidden = !open;
-    btn.setAttribute('aria-expanded', String(open));
+  let timer;
+  const open = () => {
+    note.hidden = false;
+    requestAnimationFrame(() => note.classList.add('is-open'));
+    btn.setAttribute('aria-expanded', 'true');
+    clearTimeout(timer);
+    timer = setTimeout(close, 3000);
+  };
+  const close = () => {
+    note.classList.remove('is-open');
+    btn.setAttribute('aria-expanded', 'false');
+    clearTimeout(timer);
+  };
+  note.addEventListener('transitionend', () => {
+    if (!note.classList.contains('is-open')) note.hidden = true;
   });
+  btn.addEventListener('click', (e) => { e.stopPropagation(); open(); });
   document.addEventListener('click', (e) => {
-    if (!note.hidden && !note.contains(e.target)) close();
+    if (note.classList.contains('is-open') && !note.contains(e.target)) close();
   });
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 }
@@ -683,7 +725,8 @@ function initHistory() {
         ${h.items.map((it) => {
           const text = typeof it === 'string' ? it : it.text;
           const badge = typeof it === 'string' ? '' : `<span class="tl-badge">${esc(it.badge)}</span>`;
-          return `<li>${esc(text)}${badge}</li>`;
+          const body = typeof it === 'string' ? prizeHTML(text) : esc(text);
+          return `<li>${body}${badge}</li>`;
         }).join('')}
       </ul>
     </div>`).join('');
@@ -777,23 +820,36 @@ function initSubTabs() {
 /* ------------------------------------------------------------
    ARCHIVE (archive.html)
    ------------------------------------------------------------ */
-function initArchive() {
+async function initArchive() {
   const list = $('#materialList');
   const chips = $('#materialFilters');
   if (!list || !chips) return;
 
   const LABEL = { edu: '교육자료', project: '프로젝트' };
 
+  /* 자료 데이터: Supabase 우선, 없으면 하드코딩 폴백 */
+  let materials = MATERIALS;
+  if (window.sb) {
+    const { data, error } = await window.sb.from('materials').select('*')
+      .order('sort_order', { ascending: false });
+    if (error) console.error('자료 불러오기 실패', error);
+    else if (data) materials = data.map((m) => ({
+      type: m.type, title: m.title, desc: m.description || '',
+      author: m.author || '', date: m.mat_date || '',
+      tags: m.tags || [], file_url: m.file_url, file_name: m.file_name
+    }));
+  }
+
   function render(type) {
-    const items = type === 'all' ? MATERIALS : MATERIALS.filter((m) => m.type === type);
+    const items = type === 'all' ? materials : materials.filter((m) => m.type === type);
     list.innerHTML = items.length ? items.map((m) => `
       <article class="row">
         <span class="row-badge">${esc(LABEL[m.type])}</span>
         <div class="row-main">
           <h3 class="row-title">${esc(m.title)}</h3>
           <p class="row-desc">${esc(m.desc)}</p>
-          <div class="tags">${m.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
-          <div class="row-meta"><span>${esc(m.author)}</span><span>${esc(m.date)}</span></div>
+          <div class="tags">${(m.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
+          <div class="row-meta"><span>${esc(m.author)}</span><span>${esc(m.date)}</span>${m.file_url ? `<a class="row-file" href="${m.file_url}" target="_blank" rel="noopener">자료 받기</a>` : ''}</div>
         </div>
       </article>`).join('') : '<p class="empty">해당 분류의 자료가 없습니다.</p>';
 
@@ -813,7 +869,7 @@ function initArchive() {
 /* ------------------------------------------------------------
    NOTICE (notice.html)
    ------------------------------------------------------------ */
-function initNotice() {
+async function initNotice() {
   const list = $('#noticeList');
   const input = $('#noticeSearch');
   const count = $('#noticeCount');
@@ -824,6 +880,16 @@ function initNotice() {
   let page = 1;
   let query = '';
 
+  /* 공지 데이터: Supabase 우선, 없으면 하드코딩 폴백 */
+  let notices = NOTICES;
+  if (window.sb) {
+    const { data, error } = await window.sb.from('notices').select('*')
+      .order('pinned', { ascending: false })
+      .order('sort_order', { ascending: false });
+    if (error) console.error('공지 불러오기 실패', error);
+    else if (data) notices = data;
+  }
+
   /* 본문 속 링크는 눌러서 열 수 있게 한다 */
   const linkify = (t) => esc(t).replace(
     /https?:\/\/[^\s<]+[^\s<.,)]/g,
@@ -832,8 +898,8 @@ function initNotice() {
 
   const filtered = () => {
     const key = query.trim().toLowerCase();
-    return NOTICES.filter((n) =>
-      !key || (n.title + n.tag + n.body).toLowerCase().includes(key));
+    return notices.filter((n) =>
+      !key || (n.title + (n.tag || '') + n.body).toLowerCase().includes(key));
   };
 
   function drawPager(total) {
@@ -861,7 +927,7 @@ function initNotice() {
     list.innerHTML = slice.length ? slice.map((n) => `
       <details class="notice-item">
         <summary>
-          <span class="row-badge${n.pinned ? ' row-badge--hot' : ''}">${esc(n.tag)}</span>
+          ${n.tag ? `<span class="row-badge${n.pinned ? ' row-badge--hot' : ''}">${esc(n.tag)}</span>` : ''}
           <span class="notice-title">${esc(n.title)}</span>
         </summary>
         <div class="notice-body">${linkify(n.body)}</div>
@@ -891,10 +957,17 @@ function initNotice() {
 /* ------------------------------------------------------------
    FAQ (notice.html)
    ------------------------------------------------------------ */
-function initFaq() {
+async function initFaq() {
   const box = $('#faqList');
   if (!box) return;
-  box.innerHTML = FAQS.map((f) => `
+  let faqs = FAQS;
+  if (window.sb) {
+    const { data, error } = await window.sb.from('faqs').select('*')
+      .order('sort_order', { ascending: false });
+    if (error) console.error('FAQ 불러오기 실패', error);
+    else if (data) faqs = data.map((f) => ({ q: f.question, a: f.answer }));
+  }
+  box.innerHTML = faqs.map((f) => `
     <details class="faq-item">
       <summary>${esc(f.q)}</summary>
       <p>${esc(f.a)}</p>
@@ -910,7 +983,7 @@ function initAwards() {
   box.innerHTML = AWARDS.map((a) => `
     <div class="award-group">
       <h3>${esc(a.period)}</h3>
-      <ul>${a.items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
+      <ul>${a.items.map((i) => `<li>${prizeHTML(i)}</li>`).join('')}</ul>
     </div>`).join('');
 }
 
