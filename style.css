@@ -699,6 +699,16 @@ svg{display:block}
   font-size:15px;line-height:1.85;color:var(--ink-2);
 }
 
+/* 공지·FAQ가 딱 펴지지 않고 아래로 부드럽게 펼쳐지도록 */
+:root{interpolate-size:allow-keywords}
+.notice-item::details-content,
+.faq-item::details-content{
+  height:0;overflow:clip;opacity:0;
+  transition:height .32s var(--ease),opacity .28s var(--ease),content-visibility .32s allow-discrete;
+}
+.notice-item[open]::details-content,
+.faq-item[open]::details-content{height:auto;opacity:1}
+
 .notice-cta{
   margin-top:16px;padding:20px 24px;border-radius:var(--r-md);
   background:var(--tint);border:1px solid #d5e5f8;
