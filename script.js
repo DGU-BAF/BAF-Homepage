@@ -57,14 +57,15 @@ const EXECUTIVES = [
     { role: '교육부장', name: '유영우', photo: 'assets/exec-edu.jpg' } ] },
   /* 사진과 한마디는 받는 대로 photo / quote 에 채우면 인사말 카드에 바로 반영됩니다. */
   { gen: 11, years: '2026', current: true, members: [
-    { role: '회장',     name: '전동현', photo: '',
+    { role: '회장',     name: '전동현', photo: 'assets/exec11-president.jpg',
       quote: '데이터는 혼자 공부할 수 있지만, 프로젝트는 혼자 못 합니다. 서로의 부족한 부분을 채워가며 끝까지 완성해내는 비어플을 만들겠습니다.' },
-    { role: '부회장',   name: '유민서', photo: '', quote: '' },
+    { role: '부회장',   name: '유민서', photo: 'assets/exec11-vice.jpg',
+      quote: '결측치는 줄이고, 인사이트는 더하면서 함께 성장하는 학회를 만들어가겠습니다.' },
     { role: '총무',     name: '박현준', photo: 'assets/exec11-treasurer.jpg',
       quote: '결과만큼이나 함께하는 과정도 즐거울 수 있도록 노력하겠습니다.' },
     { role: '홍보부장', name: '김규빈', photo: 'assets/exec11-pr.jpg',
       quote: '비어플의 다양한 활동과 이야기를 많은 사람들에게 전할 수 있도록 노력하겠습니다.' },
-    { role: '교육부장', name: '강지호', photo: '',
+    { role: '교육부장', name: '강지호', photo: 'assets/exec11-edu1.jpg',
       quote: '학회원 모두가 함께 성장하고, 많은 것을 배워갈 수 있는 비어플이 되도록 노력하겠습니다.' },
     { role: '교육부장', name: '김태형', photo: 'assets/exec11-edu2.jpg',
       quote: '모두 함께 성장할 수 있도록 최선을 다하겠습니다.' } ] }
