@@ -145,3 +145,27 @@
   .admin-row{flex-direction:column;align-items:stretch}
   .admin-row-actions{justify-content:flex-end}
 }
+
+/* 프로젝트 상세 입력 묶음 */
+.field-group{
+  margin:4px 0 2px;padding:0 0 2px;border-top:1px solid var(--line, #e2e8f0);
+}
+.field-group > summary{
+  padding:14px 0 10px;cursor:pointer;list-style:none;
+  font-size:13px;font-weight:600;color:#0d5eba;
+}
+.field-group > summary::-webkit-details-marker{display:none}
+.field-group > summary::after{content:' ▾';font-size:11px}
+.field-group[open] > summary::after{content:' ▴'}
+
+/* 지원 버튼 설정 */
+.form-ok{
+  margin-top:10px;padding:10px 14px;border-radius:10px;
+  background:#e7f7ed;border:1px solid #b7e4c7;color:#1f7a3d;font-size:13px;
+}
+.settings-hint{font-size:13.5px;line-height:1.8;color:#57616f;margin-bottom:18px}
+.settings-hint strong{color:#0d5eba}
+.settings-preview{
+  padding:26px;border-radius:12px;background:#f4f7fb;border:1px solid #e2e8f0;
+  display:grid;place-items:center;
+}

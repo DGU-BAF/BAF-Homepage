@@ -94,6 +94,11 @@ svg{display:block}
 .btn--ghost{background:rgba(255,255,255,.72);color:var(--ink);border:1px solid var(--line);backdrop-filter:blur(8px)}
 .btn--ghost:hover{transform:translateY(-2px);background:#fff;box-shadow:var(--shadow-sm)}
 .btn--sm{padding:9px 18px;font-size:14px}
+/* 지원을 받지 않는 상태 — 아무 반응 없는 회색 버튼 */
+.btn--off,.btn--off:hover,.btn--off:focus{
+  background:#eceff4;color:#8a94a2;border:1px solid transparent;
+  box-shadow:none;transform:none;cursor:default;
+}
 
 /* ============================================================
    NAVIGATION — floating translucent pill
@@ -142,17 +147,6 @@ svg{display:block}
 .nav-actions .btn--ghost.is-active{background:var(--blue);color:#fff;border-color:transparent}
 
 /* 지원 안내 팝오버 */
-.apply-wrap{position:relative}
-.apply-note{
-  position:absolute;top:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(-6px);z-index:20;
-  width:max-content;max-width:270px;padding:14px 18px;border-radius:var(--r-md);
-  background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.85);
-  box-shadow:var(--shadow-md);
-  backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
-  font-size:14px;line-height:1.65;color:var(--ink-2);
-  opacity:0;pointer-events:none;transition:opacity .28s var(--ease),transform .28s var(--ease);
-}
-.apply-note.is-open{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
 .nav-list{display:flex;align-items:center;gap:4px}
 .nav-item{position:relative}
 .nav-link{
@@ -646,6 +640,53 @@ svg{display:block}
 }
 .empty{padding:60px 0;text-align:center;color:var(--muted);font-size:15px}
 
+/* ---------- 자료실 아코디언 ---------- */
+.mat-list{display:grid;gap:10px}
+.mat-item{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
+  box-shadow:var(--shadow-sm);overflow:hidden;
+  transition:border-color .22s var(--ease),box-shadow .22s var(--ease);
+}
+.mat-item:hover{border-color:#d3e2f5}
+.mat-item[open]{border-color:#d3e2f5;box-shadow:var(--shadow-md)}
+.mat-item summary{
+  display:flex;align-items:center;gap:16px;
+  padding:18px 24px;cursor:pointer;list-style:none;
+}
+.mat-item summary::-webkit-details-marker{display:none}
+.mat-title{flex:1;font-size:16px;font-weight:600;color:var(--ink);line-height:1.5}
+.mat-date{font-size:13px;color:var(--muted);white-space:nowrap}
+.mat-item summary::after{
+  content:'';flex-shrink:0;width:9px;height:9px;
+  border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
+  transform:rotate(45deg) translate(-2px,-2px);transition:transform .25s var(--ease);
+}
+.mat-item[open] summary::after{transform:rotate(-135deg)}
+
+.mat-body{padding:2px 24px 24px}
+.mat-summary{
+  padding-bottom:18px;margin-bottom:4px;border-bottom:1px solid var(--line);
+  font-size:15.5px;line-height:1.75;color:var(--ink);font-weight:500;
+}
+.mat-block{padding-top:18px}
+.mat-block h4{
+  font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--blue);margin-bottom:7px;
+}
+.mat-block p{font-size:14.5px;line-height:1.8;color:var(--ink-2);white-space:pre-line}
+.mat-output{margin:0}
+.mat-output img{
+  width:100%;max-width:560px;border-radius:var(--r-sm);
+  border:1px solid var(--line);background:var(--bg-alt);
+}
+.mat-output figcaption{margin-top:8px;font-size:13px;color:var(--muted)}
+.mat-body .tags{margin-top:20px}
+.mat-file{
+  display:inline-block;margin-top:18px;padding:9px 18px;border-radius:999px;
+  background:var(--tint);color:var(--blue);font-size:13.5px;font-weight:600;
+}
+.mat-file:hover{background:#dfeafa}
+
 /* ---------- 공지 아코디언 ---------- */
 .notice-item{
   background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
@@ -961,10 +1002,7 @@ svg{display:block}
   .nav-list{flex-direction:column;align-items:stretch;gap:2px}
   .nav-actions{flex-direction:column;align-items:stretch;gap:10px;margin-top:28px}
   .nav-actions::before{display:none}
-  .apply-wrap{display:flex;flex-direction:column}
   .nav-actions .btn{padding:15px 20px;font-size:16px}
-  .apply-note{position:static;width:auto;max-width:none;margin-top:10px;backdrop-filter:none;-webkit-backdrop-filter:none;transform:translateY(-6px)}
-  .apply-note.is-open{transform:translateY(0)}
   .nav-link{padding:15px 18px;border-radius:var(--r-md);font-size:17px;font-weight:500;justify-content:space-between}
   .nav-caret{width:11px;height:11px}
   .nav-item.is-open .nav-caret{transform:rotate(180deg)}

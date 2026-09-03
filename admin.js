@@ -35,6 +35,7 @@ async function refreshAuthUI() {
     loadNotices();
     loadMaterials();
     loadFaqs();
+    loadSettings();
   } else {
     dashView.hidden = true;
     loginView.hidden = false;
@@ -84,7 +85,8 @@ async function loadNotices() {
   const list = $('#noticeList');
   const { data, error } = await sb.from('notices').select('*')
     .order('pinned', { ascending: false })
-    .order('sort_order', { ascending: false });
+    .order('sort_order', { ascending: false })
+    .order('created_at', { ascending: false });
   if (error) { fail(noticeError, '공지 불러오기 실패', error); return; }
 
   $('#noticeCount').textContent = data.length;
@@ -197,6 +199,7 @@ const LABEL = { edu: '교육자료', project: '프로젝트' };
 async function loadMaterials() {
   const list = $('#materialList');
   const { data, error } = await sb.from('materials').select('*')
+    .order('mat_date', { ascending: false, nullsFirst: false })
     .order('sort_order', { ascending: false });
   if (error) { fail(materialError, '자료 불러오기 실패', error); return; }
 
@@ -254,6 +257,11 @@ function fillMaterialForm(m) {
   $('#materialTitle').value = m.title;
   $('#materialDesc').value = m.description || '';
   $('#materialAuthor').value = m.author || '';
+  $('#materialProblem').value = m.problem || '';
+  $('#materialApproach').value = m.approach || '';
+  $('#materialResult').value = m.result || '';
+  $('#materialOutputUrl').value = m.output_url || '';
+  $('#materialOutputCaption').value = m.output_caption || '';
   $('#materialDate').value = (m.mat_date || '').replace(/\./g, '-');  /* 2017.09.29 → 2017-09-29 (달력 표시용) */
   $('#materialTags').value = (m.tags || []).join(', ');
   $('#materialFileUrl').value = m.file_url || '';
@@ -306,6 +314,11 @@ materialForm.addEventListener('submit', async (e) => {
       title: $('#materialTitle').value.trim(),
       description: $('#materialDesc').value.trim() || null,
       author: $('#materialAuthor').value.trim() || null,
+      problem: $('#materialProblem').value.trim() || null,
+      approach: $('#materialApproach').value.trim() || null,
+      result: $('#materialResult').value.trim() || null,
+      output_url: $('#materialOutputUrl').value.trim() || null,
+      output_caption: $('#materialOutputCaption').value.trim() || null,
       mat_date: $('#materialDate').value.replace(/-/g, '.') || null,  /* 2017-09-29 → 2017.09.29 (표기 통일) */
       tags,
       file_url: fileUrl,
@@ -494,3 +507,63 @@ function renderPreview() {
 /* ---------- 시작 ---------- */
 if (PREVIEW) renderPreview();
 else refreshAuthUI();
+
+
+/* ============================================================
+   지원 버튼 설정
+   ============================================================ */
+const settingsForm = $('#settingsForm');
+const settingsError = $('#settingsError');
+const settingsOk = $('#settingsOk');
+
+
+function paintApplyPreview() {
+  const btn = $('#applyPreview');
+  if (!btn) return;
+  btn.textContent = $('#applyLabel').value.trim() || '지원하기';
+  const live = !!$('#applyUrl').value.trim();
+  btn.classList.toggle('btn--primary', live);
+  btn.classList.toggle('btn--off', !live);
+  btn.disabled = !live;
+}
+
+async function loadSettings() {
+  if (!settingsForm) return;
+  const { data, error } = await sb.from('settings').select('key,value');
+  if (error) { setError(settingsError, '설정을 불러오지 못했습니다: ' + error.message); return; }
+  const map = Object.fromEntries((data || []).map((r) => [r.key, r.value || '']));
+  $('#applyLabel').value = map.apply_label ?? '';
+  $('#applyUrl').value = map.apply_url ?? '';
+  paintApplyPreview();
+}
+
+if (settingsForm) {
+  $('#applyLabel').addEventListener('input', paintApplyPreview);
+  $('#applyUrl').addEventListener('input', paintApplyPreview);
+
+  settingsForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setError(settingsError, '');
+    settingsOk.hidden = true;
+
+    const url = $('#applyUrl').value.trim();
+    if (url && !/^https?:\/\//i.test(url)) {
+      setError(settingsError, '폼 주소는 http:// 또는 https:// 로 시작해야 합니다.');
+      return;
+    }
+
+    const rows = [
+      { key: 'apply_label', value: $('#applyLabel').value.trim() },
+      { key: 'apply_url',   value: url }
+    ];
+
+    const btn = $('#settingsSubmit');
+    btn.disabled = true;
+    const { error } = await sb.from('settings').upsert(rows, { onConflict: 'key' });
+    btn.disabled = false;
+
+    if (error) { setError(settingsError, '저장 실패: ' + error.message); return; }
+    settingsOk.hidden = false;
+    setTimeout(() => { settingsOk.hidden = true; }, 2500);
+  });
+}

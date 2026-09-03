@@ -49,6 +49,7 @@
     <button type="button" class="admin-tab is-active" data-tab="notices">공지사항</button>
     <button type="button" class="admin-tab" data-tab="materials">자료실</button>
     <button type="button" class="admin-tab" data-tab="faqs">FAQ</button>
+    <button type="button" class="admin-tab" data-tab="settings">지원 버튼</button>
   </nav>
 
   <!-- ----- 공지사항 탭 ----- -->
@@ -112,13 +113,37 @@
             <input type="text" id="materialTitle" required>
           </label>
           <label class="field">
-            <span>설명</span>
-            <textarea id="materialDesc" rows="3"></textarea>
+            <span>설명 · 한 문장 소개</span>
+            <textarea id="materialDesc" rows="2"></textarea>
           </label>
           <label class="field">
-            <span>작성자</span>
-            <input type="text" id="materialAuthor" placeholder="예: 13 이동현">
+            <span>작성자 · 참여자 (Members)</span>
+            <input type="text" id="materialAuthor" placeholder="예: 김현중, 이정, 박권수">
           </label>
+
+          <details class="field-group">
+            <summary>프로젝트 상세 (드롭다운에 표시)</summary>
+            <label class="field">
+              <span>Problem — 어떤 문제에 주목했고 왜 분석했는지</span>
+              <textarea id="materialProblem" rows="3"></textarea>
+            </label>
+            <label class="field">
+              <span>Approach — 어떤 데이터와 분석 방법을 활용했는지</span>
+              <textarea id="materialApproach" rows="3"></textarea>
+            </label>
+            <label class="field">
+              <span>Insight / Result — 어떤 결과나 인사이트를 얻었는지</span>
+              <textarea id="materialResult" rows="3"></textarea>
+            </label>
+            <label class="field">
+              <span>Output — 대표 그래프·시각화 이미지 주소</span>
+              <input type="text" id="materialOutputUrl" placeholder="https://... (Storage 업로드 주소)">
+            </label>
+            <label class="field">
+              <span>Output 설명</span>
+              <input type="text" id="materialOutputCaption" placeholder="예: 도메인별 이직 확률 분포">
+            </label>
+          </details>
           <label class="field">
             <span>날짜</span>
             <input type="date" id="materialDate">
@@ -174,6 +199,41 @@
       <div class="card list-card">
         <h2>FAQ 목록 (<span id="faqCount">0</span>)</h2>
         <div class="admin-list" id="faqList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ----- 지원 버튼 탭 ----- -->
+  <div class="tab-panel" id="tab-settings" hidden>
+    <div class="admin-grid">
+      <div class="card form-card">
+        <h2>지원 버튼 설정</h2>
+        <form id="settingsForm">
+          <label class="field">
+            <span>버튼 문구</span>
+            <input type="text" id="applyLabel" placeholder="예: 20기 지원하기 / 20기 모집예정 / 20기 모집마감" required>
+          </label>
+          <label class="field">
+            <span>지원 폼 주소</span>
+            <input type="text" id="applyUrl" placeholder="https://forms.gle/... (비우면 링크 대신 안내 문구가 뜹니다)">
+          </label>
+          <div class="form-actions">
+            <button type="submit" class="btn btn--primary btn--sm" id="settingsSubmit">저장</button>
+          </div>
+          <p class="form-error" id="settingsError" hidden></p>
+          <p class="form-ok" id="settingsOk" hidden>저장했습니다. 사이트에 바로 반영됩니다.</p>
+        </form>
+      </div>
+
+      <div class="card list-card">
+        <h2>미리보기</h2>
+        <p class="settings-hint">
+          폼 주소를 입력하면 버튼이 <strong>파란 링크</strong>가 되어 새 창으로 열립니다.<br>
+          비워두면 <strong>회색 비활성 버튼</strong>이 되어 눌러도 아무 일도 일어나지 않습니다.
+        </p>
+        <div class="settings-preview">
+          <button type="button" class="btn btn--sm btn--off" id="applyPreview" disabled>지원 안내</button>
+        </div>
       </div>
     </div>
   </div>

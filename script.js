@@ -10,9 +10,8 @@
 /* 지원 안내
    — 구글 폼이 준비되면 url 을 채우고 open 을 true 로 바꾸면 버튼이 폼으로 연결됩니다. */
 const APPLY = {
-  open: false,
-  url: '',
-  message: '현재 지원 기간이 아닙니다.'
+  label: '지원 안내',       /* 설정을 못 읽었을 때만 보이는 기본 문구 */
+  url: ''                   /* 폼 주소 — 비우면 버튼이 비활성 상태가 됩니다 */
 };
 
 /* 역대 임원진 (about.html #members) */
@@ -83,7 +82,10 @@ const MATERIALS = [
     desc: 'R 프로그램으로 시작하는 텍스트마이닝 입문 강의안입니다.',
     author: '13 이동현', date: '2017.09.15', tags: ['R', 'Textmining', '입문'] },
   { type: 'project', title: '인적자원분석 — 이직여부 예측',
-    desc: 'EDA를 바탕으로 이직 가능성에 영향을 주는 요인을 분석하고 예측 모형을 구축했습니다.',
+    desc: '직원의 근무 이력과 만족도 지표로 이직 가능성을 예측한 프로젝트입니다.',
+    problem: '이직은 채용·교육 비용으로 이어지지만, 어떤 직원이 왜 떠나는지는 사후에야 파악됩니다. 이직에 앞서 나타나는 신호를 데이터에서 찾고자 했습니다.',
+    approach: '인사 데이터의 근속 연수, 직무 만족도, 초과근무, 급여 수준을 EDA로 살펴본 뒤 로지스틱 회귀분석과 랜덤 포레스트로 예측 모형을 만들고 두 모형의 성능을 비교했습니다.',
+    result: '초과근무와 직무 만족도가 이직 여부를 가장 크게 갈랐고, 랜덤 포레스트가 더 높은 예측 성능을 보였습니다. 부서별로 위험 요인이 다르게 나타난 점도 확인했습니다.',
     author: '김현중, 이정, 박권수, 정아현', date: '2017.11.26',
     tags: ['EDA', '로지스틱 회귀분석', '랜덤 포레스트'] },
   { type: 'project', title: 'League of Legends 승패예측 및 연관성분석',
@@ -357,49 +359,41 @@ function initNav() {
 /* ------------------------------------------------------------
    APPLY — 지원하기 버튼
    ------------------------------------------------------------ */
-function initApply() {
-  /* 지원 기간이면 버튼을 구글 폼 링크로 바꾼다 */
+async function initApply() {
   const btn = $('#applyBtn');
-  const note = $('#applyNote');
-
   if (!btn) return;
 
-  if (APPLY.open && APPLY.url) {
-    const link = document.createElement('a');
-    link.className = btn.className;
-    link.href = APPLY.url;
-    link.target = '_blank';
-    link.rel = 'noopener';
-    link.textContent = btn.textContent;
-    btn.replaceWith(link);
-    if (note) note.remove();
+  /* 관리자 페이지에서 저장한 설정을 읽어온다 (실패하면 기본값 유지) */
+  const cfg = { ...APPLY };
+  if (window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
+    try {
+      const res = await fetch(
+        `${window.SUPABASE_URL}/rest/v1/settings?select=key,value`,
+        { headers: { apikey: window.SUPABASE_ANON_KEY,
+                     Authorization: `Bearer ${window.SUPABASE_ANON_KEY}` } });
+      if (res.ok) {
+        for (const { key, value } of await res.json()) {
+          if (key === 'apply_label' && value) cfg.label = value;
+          if (key === 'apply_url') cfg.url = value || '';
+        }
+      }
+    } catch (e) { /* 네트워크 실패 시 기본값 유지 */ }
+  }
+
+  /* 폼 주소가 없으면 회색 비활성 버튼 그대로 둔다 */
+  if (!cfg.url) {
+    btn.textContent = cfg.label;
     return;
   }
 
-  if (!note) return;
-  note.textContent = APPLY.message;
-
-  let timer;
-  const open = () => {
-    note.hidden = false;
-    requestAnimationFrame(() => note.classList.add('is-open'));
-    btn.setAttribute('aria-expanded', 'true');
-    clearTimeout(timer);
-    timer = setTimeout(close, 3000);
-  };
-  const close = () => {
-    note.classList.remove('is-open');
-    btn.setAttribute('aria-expanded', 'false');
-    clearTimeout(timer);
-  };
-  note.addEventListener('transitionend', () => {
-    if (!note.classList.contains('is-open')) note.hidden = true;
-  });
-  btn.addEventListener('click', (e) => { e.stopPropagation(); open(); });
-  document.addEventListener('click', (e) => {
-    if (note.classList.contains('is-open') && !note.contains(e.target)) close();
-  });
-  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  /* 지원을 받는 중이면 링크로 바꾼다 */
+  const link = document.createElement('a');
+  link.className = 'btn btn--primary btn--sm';
+  link.href = cfg.url;
+  link.target = '_blank';
+  link.rel = 'noopener';
+  link.textContent = cfg.label;
+  btn.replaceWith(link);
 }
 
 /* ------------------------------------------------------------
@@ -832,32 +826,67 @@ async function initArchive() {
   let materials = MATERIALS;
   if (window.sb) {
     const { data, error } = await window.sb.from('materials').select('*')
+      .order('mat_date', { ascending: false, nullsFirst: false })
       .order('sort_order', { ascending: false });
     if (error) console.error('자료 불러오기 실패', error);
     else if (data) materials = data.map((m) => ({
       type: m.type, title: m.title, desc: m.description || '',
       author: m.author || '', date: m.mat_date || '',
-      tags: m.tags || [], file_url: m.file_url, file_name: m.file_name
+      tags: m.tags || [], file_url: m.file_url, file_name: m.file_name,
+      problem: m.problem || '', approach: m.approach || '',
+      result: m.result || '', outputUrl: m.output_url || '',
+      outputCaption: m.output_caption || ''
     }));
   }
+
+  /* 값이 있는 항목만 블록으로 그린다 */
+  const block = (label, text) => text
+    ? `<div class="mat-block"><h4>${label}</h4><p>${esc(text)}</p></div>` : '';
+
+  const body = (m) => {
+    const out = m.outputUrl ? `
+      <div class="mat-block">
+        <h4>Output</h4>
+        <figure class="mat-output">
+          <img src="${esc(m.outputUrl)}" alt="${esc(m.title)} 결과물" loading="lazy">
+          ${m.outputCaption ? `<figcaption>${esc(m.outputCaption)}</figcaption>` : ''}
+        </figure>
+      </div>` : '';
+    return [
+      m.desc ? `<p class="mat-summary">${esc(m.desc)}</p>` : '',
+      block('Problem', m.problem),
+      block('Approach', m.approach),
+      block('Insight / Result', m.result),
+      out,
+      block('Members', m.author),
+      (m.tags || []).length ? `<div class="tags">${m.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : '',
+      m.file_url ? `<a class="mat-file" href="${esc(m.file_url)}" target="_blank" rel="noopener">자료 받기</a>` : ''
+    ].join('');
+  };
 
   function render(type) {
     const items = type === 'all' ? materials : materials.filter((m) => m.type === type);
     list.innerHTML = items.length ? items.map((m) => `
-      <article class="row">
-        <span class="row-badge">${esc(LABEL[m.type])}</span>
-        <div class="row-main">
-          <h3 class="row-title">${esc(m.title)}</h3>
-          <p class="row-desc">${esc(m.desc)}</p>
-          <div class="tags">${(m.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
-          <div class="row-meta"><span>${esc(m.author)}</span><span>${esc(m.date)}</span>${m.file_url ? `<a class="row-file" href="${m.file_url}" target="_blank" rel="noopener">자료 받기</a>` : ''}</div>
-        </div>
-      </article>`).join('') : '<p class="empty">해당 분류의 자료가 없습니다.</p>';
+      <details class="mat-item">
+        <summary>
+          <span class="row-badge">${esc(LABEL[m.type])}</span>
+          <span class="mat-title">${esc(m.title)}</span>
+          ${m.date ? `<span class="mat-date">${esc(m.date)}</span>` : ''}
+        </summary>
+        <div class="mat-body">${body(m)}</div>
+      </details>`).join('') : '<p class="empty">해당 분류의 자료가 없습니다.</p>';
 
     $$('.chip', chips).forEach((c) => {
       c.classList.toggle('is-active', c.dataset.filter === type);
     });
   }
+
+  /* 한 번에 하나만 펼친다 */
+  list.addEventListener('toggle', (e) => {
+    const d = e.target;
+    if (d.tagName !== 'DETAILS' || !d.open) return;
+    $$('.mat-item[open]', list).forEach((o) => { if (o !== d) o.open = false; });
+  }, true);
 
   chips.addEventListener('click', (e) => {
     const chip = e.target.closest('.chip');
@@ -887,7 +916,8 @@ async function initNotice() {
   if (window.sb) {
     const { data, error } = await window.sb.from('notices').select('*')
       .order('pinned', { ascending: false })
-      .order('sort_order', { ascending: false });
+      .order('sort_order', { ascending: false })
+      .order('created_at', { ascending: false });
     if (error) console.error('공지 불러오기 실패', error);
     else if (data) notices = data;
   }

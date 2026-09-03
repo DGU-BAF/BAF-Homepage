@@ -43,6 +43,38 @@ create table if not exists public.faqs (
 -- 공개 SELECT, 쓰기는 로그인(authenticated) 롤만 허용
 -- ============================================================
 alter table public.notices   enable row level security;
+-- 프로젝트 상세(드롭다운) 필드 — 기존 테이블에도 안전하게 추가됩니다
+alter table public.materials add column if not exists problem        text;  -- 어떤 문제에 주목했는지
+alter table public.materials add column if not exists approach       text;  -- 어떤 데이터·방법을 썼는지
+alter table public.materials add column if not exists result         text;  -- 어떤 결과·인사이트를 얻었는지
+alter table public.materials add column if not exists output_url     text;  -- 대표 그래프·시각화 이미지 URL
+alter table public.materials add column if not exists output_caption text;  -- 결과물 설명
+
+-- ============================================================
+-- settings — 사이트 설정 (지원 버튼 문구·폼 주소 등)
+-- ============================================================
+create table if not exists public.settings (
+  key        text primary key,
+  value      text,
+  updated_at timestamptz default now()
+);
+alter table public.settings enable row level security;
+
+create policy "settings 공개 조회" on public.settings
+  for select using (true);
+create policy "settings 로그인 등록" on public.settings
+  for insert with check (auth.role() = 'authenticated');
+create policy "settings 로그인 수정" on public.settings
+  for update using (auth.role() = 'authenticated');
+
+grant select on public.settings to anon, authenticated;
+grant insert, update on public.settings to authenticated;
+
+insert into public.settings (key, value) values
+  ('apply_label', '19기 모집마감'),
+  ('apply_url',   '')
+on conflict (key) do nothing;
+
 alter table public.materials enable row level security;
 alter table public.faqs      enable row level security;
 
