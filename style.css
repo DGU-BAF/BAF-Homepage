@@ -428,41 +428,41 @@ svg{display:block}
 .act-flow .act-card:last-child::after{display:none}
 
 /* 학회원 지원 — 3개 카테고리 */
-.support-cats{display:grid;gap:16px}
+.support-cats{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
 .cat{
-  display:grid;grid-template-columns:auto 1fr 1.05fr;gap:34px;align-items:center;
-  padding:32px 38px;border-radius:var(--r-lg);border:1px solid transparent;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  padding:46px 34px 40px;border-radius:var(--r-lg);
+  background:#fff;border:1px solid var(--line);box-shadow:var(--shadow-sm);
   transition:transform .28s var(--ease),box-shadow .28s var(--ease);
 }
 .cat:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
 .cat-icon{
-  width:70px;height:70px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;
+  width:88px;height:88px;border-radius:50%;display:grid;place-items:center;
+  background:#eef3fb;color:var(--blue);
 }
-.cat-icon svg{width:30px;height:30px}
-.cat-head h3{font-size:19px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
-.cat-head p{margin-top:8px;font-size:14.5px;line-height:1.7;color:var(--muted)}
-.cat-list{display:grid;gap:9px}
+.cat-icon svg{width:36px;height:36px}
+.cat-num{
+  display:block;margin-top:24px;
+  font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--blue-2);
+}
+.cat-head h3{margin-top:8px;font-size:23px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.cat-head h3::after{
+  content:'';display:block;width:34px;height:2px;margin:16px auto 0;
+  background:var(--blue-3);
+}
+.cat-head p{margin-top:18px;font-size:15px;line-height:1.75;color:var(--muted)}
+.cat-list{
+  width:100%;display:grid;gap:11px;margin-top:28px;padding-top:28px;
+  border-top:1px solid var(--line);text-align:left;
+}
 .cat-list li{
   position:relative;padding-left:18px;
   font-size:15px;font-weight:500;color:var(--ink-2);line-height:1.5;
 }
 .cat-list li::before{
   content:'';position:absolute;left:0;top:8px;
-  width:6px;height:6px;border-radius:50%;
+  width:6px;height:6px;border-radius:50%;background:var(--blue-2);
 }
-
-/* 카테고리별 색 */
-.cat--learn{background:#f1f6fd}
-.cat--learn .cat-icon{background:#dfeafa;color:var(--blue)}
-.cat--learn .cat-list li::before{background:var(--blue-2)}
-
-.cat--community{background:#fdf6f0}
-.cat--community .cat-icon{background:#f8e7d6;color:#b4711f}
-.cat--community .cat-list li::before{background:#d9a061}
-
-.cat--career{background:#f1f8f4}
-.cat--career .cat-icon{background:#d9eee2;color:#0f7a4d}
-.cat--career .cat-list li::before{background:#4fa87c}
 
 /* ---------- Timeline ---------- */
 .timeline{position:relative;padding-left:0}
@@ -972,8 +972,7 @@ svg{display:block}
   .section{padding:88px 0}
   .grid-5{grid-template-columns:repeat(3,1fr)}
   .act-timeline{display:none}
-  .cat{grid-template-columns:auto 1fr;gap:24px 26px}
-  .cat-list{grid-column:2}
+  .support-cats{grid-template-columns:1fr;gap:20px}
   .act-flow .act-card::after{display:none}
   .split{grid-template-columns:1fr;gap:36px}
   .contact-layout{grid-template-columns:1fr;gap:38px}
