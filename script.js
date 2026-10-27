@@ -300,8 +300,8 @@ function prizeHTML(text) {
     ['최우수상', 'blue'], ['우수상', 'sky'], ['대상', 'gold'], ['금상', 'gold'],
     ['장려상', 'gray'], ['입선', 'gray'], ['입상', 'gray'], ['2위', 'gray'], ['3위', 'gray'],
     ['Top Excellence Award', 'blue'], ['Excellence Award', 'sky'], ['Grand Prize', 'gold'],
-    ['Gold Prize', 'gold'], ['Honorable Mention', 'gray'], ['Selected Entry', 'gray'],
-    ['Award Winner', 'gray'], ['2nd Place', 'gray'], ['3rd Place', 'gray']
+    ['Gold Prize', 'gold'], ['Honorable Mention', 'gray'], ['Commendation', 'gray'],
+    ['Prize Winner', 'gray'], ['2nd Place', 'gray'], ['3rd Place', 'gray']
   ];
   for (const [kw, tier] of TIERS) {
     const i = text.lastIndexOf(kw);
