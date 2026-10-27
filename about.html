@@ -10,6 +10,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=11">
+<!-- 영어 사용자는 번역이 끝날 때까지 본문을 숨긴다 (i18n.js 가 해제, 실패해도 3초 뒤 표시) -->
+<script>try{if(localStorage.getItem('baf-lang')==='eng'){var h=document.documentElement;h.classList.add('i18n-wait');setTimeout(function(){h.classList.remove('i18n-wait')},3000)}}catch(e){}</script>
 <!-- Google Analytics (GA4) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QDEGRTZ1ZK"></script>
 <script>
@@ -20,47 +22,48 @@
 </script>
 </head>
 <body data-page="about">
-<a class="skip" href="#main">본문으로 건너뛰기</a>
+<a class="skip" href="#main" data-i18n>본문으로 건너뛰기</a>
 
 <div class="nav-shell">
   <div class="nav-bar">
     <a class="brand" href="index.html">
-      <img src="assets/logo-wordmark.png" alt="B.a.f · 동국대학교 빅데이터 분석 학회" width="149" height="42">
+      <img src="assets/logo-wordmark.png" alt="B.a.f · 동국대학교 빅데이터 분석 학회" data-i18n-attr="alt" width="149" height="42">
     </a>
 
-    <button class="nav-toggle" id="navToggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="nav">
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="메뉴 열기" data-i18n-attr="aria-label" aria-expanded="false" aria-controls="nav">
       <span></span><span></span><span></span>
     </button>
 
-    <nav class="nav" id="nav" aria-label="주요 메뉴">
+    <nav class="nav" id="nav" aria-label="주요 메뉴" data-i18n-attr="aria-label">
       <ul class="nav-list">
         <li class="nav-item has-sub">
-          <a class="nav-link" data-page="about" href="about.html">학회소개
+          <a class="nav-link" data-page="about" href="about.html"><span data-i18n>학회소개</span>
             <svg class="nav-caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 8.6 1.2 3.8h9.6z"/></svg>
           </a>
           <ul class="nav-sub">
-            <li><a href="about.html#greeting">인사말</a></li>
-            <li><a href="about.html#members">임원진</a></li>
-            <li><a href="about.html#awards">수상 내역</a></li>
-            <li><a href="about.html#history">설립 및 연혁</a></li>
-            <li><a href="about.html#activities">주요활동</a></li>
+            <li><a href="about.html#greeting" data-i18n>인사말</a></li>
+            <li><a href="about.html#members" data-i18n>임원진</a></li>
+            <li><a href="about.html#awards" data-i18n>수상 내역</a></li>
+            <li><a href="about.html#history" data-i18n>설립 및 연혁</a></li>
+            <li><a href="about.html#activities" data-i18n>주요활동</a></li>
           </ul>
         </li>
-        <li class="nav-item"><a class="nav-link" data-page="archive" href="archive.html">자료실</a></li>
+        <li class="nav-item"><a class="nav-link" data-page="archive" href="archive.html" data-i18n>자료실</a></li>
         <li class="nav-item has-sub">
-          <a class="nav-link" data-page="notice" href="notice.html">전체공지
+          <a class="nav-link" data-page="notice" href="notice.html"><span data-i18n>전체공지</span>
             <svg class="nav-caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 8.6 1.2 3.8h9.6z"/></svg>
           </a>
           <ul class="nav-sub">
-            <li><a href="notice.html#notice">공지사항</a></li>
+            <li><a href="notice.html#notice" data-i18n>공지사항</a></li>
             <li><a href="notice.html#faq">FAQ</a></li>
           </ul>
         </li>
       </ul>
 
       <div class="nav-actions">
-        <button class="btn btn--sm btn--off" type="button" id="applyBtn" disabled>지원 안내</button>
-        <a class="btn btn--ghost btn--sm" data-page="contact" href="contact.html">문의하기</a>
+        <button class="btn btn--sm btn--off" type="button" id="applyBtn" disabled data-i18n>지원 안내</button>
+        <a class="btn btn--ghost btn--sm" data-page="contact" href="contact.html" data-i18n>문의하기</a>
+        <div class="lang" id="langSwitch"></div>
       </div>
     </nav>
   </div>
@@ -72,7 +75,7 @@
     <div class="page-hero-deco" aria-hidden="true"></div>
     <div class="wrap">
       <p class="eyebrow">About</p>
-      <h1 class="page-hero-title">학회소개</h1>
+      <h1 class="page-hero-title" data-i18n>학회소개</h1>
     </div>
   </section>
 
@@ -80,11 +83,11 @@
     <div class="subtabs-inner">
       <span class="subtabs-progress" aria-hidden="true"><i data-scroll-progress></i></span>
       <div class="subtabs-scroll">
-        <a href="#greeting" class="is-active">인사말</a>
-        <a href="#members">임원진</a>
-        <a href="#awards">수상 내역</a>
-        <a href="#history">설립 및 연혁</a>
-        <a href="#activities">주요활동</a>
+        <a href="#greeting" class="is-active" data-i18n>인사말</a>
+        <a href="#members" data-i18n>임원진</a>
+        <a href="#awards" data-i18n>수상 내역</a>
+        <a href="#history" data-i18n>설립 및 연혁</a>
+        <a href="#activities" data-i18n>주요활동</a>
       </div>
     </div>
   </div>
@@ -94,36 +97,36 @@
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">Greeting</p>
-        <h2 class="h-section">인사말</h2>
+        <h2 class="h-section" data-i18n>인사말</h2>
       </div>
 
       <div class="prof-card">
         <figure class="prof-photo">
-          <img src="assets/prof.jpg" alt="주용성 담당교수" width="230" height="294" loading="lazy">
-          <figcaption><span>담당교수</span><b>주용성</b><em>Professor Yongsung Joo</em></figcaption>
+          <img src="assets/prof.jpg" alt="주용성 담당교수" data-i18n-attr="alt" width="230" height="294" loading="lazy">
+          <figcaption><span data-i18n>담당교수</span><b data-i18n>주용성</b><em>Professor Yongsung Joo</em></figcaption>
         </figure>
         <div class="prof-body">
-          <p class="lead">비어플에 오신 것을 환영합니다. 비어플은 동국대 유일 빅데이터 학회로, 빅데이터에 관심이 많은 통계학과 학부생들이 모여 데이터를 실제로 다루고 학습하며 교류하는 학회입니다.</p>
-          <p class="lead">12인으로 시작하여 지금은 100여 명의 학회원들을 보유하고 있으며, 지속적인 도전으로 빅데이터 분야에서 크고 작은 성과를 이루고 있습니다.</p>
-          <p class="lead">빅데이터에 관심이 많다면 비어플의 일원으로 함께 성장하길 추천드립니다.</p>
+          <p class="lead" data-i18n>비어플에 오신 것을 환영합니다. 비어플은 동국대 유일 빅데이터 학회로, 빅데이터에 관심이 많은 통계학과 학부생들이 모여 데이터를 실제로 다루고 학습하며 교류하는 학회입니다.</p>
+          <p class="lead" data-i18n>12인으로 시작하여 지금은 100여 명의 학회원들을 보유하고 있으며, 지속적인 도전으로 빅데이터 분야에서 크고 작은 성과를 이루고 있습니다.</p>
+          <p class="lead" data-i18n>빅데이터에 관심이 많다면 비어플의 일원으로 함께 성장하길 추천드립니다.</p>
 
           <dl class="prof-cred">
             <div>
-              <dt>학력</dt>
+              <dt data-i18n>학력</dt>
               <dd>
-                <span>Cornell 대학교 통계학과 통계학 박사</span>
-                <span>Cornell 대학교 통계학과 통계학 석사</span>
-                <span>고려대학교 지질학과 지질학 학사</span>
+                <span data-i18n>Cornell 대학교 통계학과 통계학 박사</span>
+                <span data-i18n>Cornell 대학교 통계학과 통계학 석사</span>
+                <span data-i18n>고려대학교 지질학과 지질학 학사</span>
               </dd>
             </div>
             <div>
-              <dt>세부 연구 분야</dt>
+              <dt data-i18n>세부 연구 분야</dt>
               <dd><span>Clustering, Bayesian modeling</span></dd>
             </div>
           </dl>
 
           <div class="prof-papers">
-            <h4>대표 논문</h4>
+            <h4 data-i18n>대표 논문</h4>
             <ol>
               <li>Bayesian Model-Based Tight Clustering for Time Course Data (2010) <i>Computational Statistics</i>, 25(1), 17–38.</li>
               <li>Clustering of Temporal Profiles Using a Bayesian Logistic Mixture Model: Analyzing Groundwater Level Data to Understand the Characteristics of Urban Groundwater Recharge (2009) <i>Journal of Agricultural, Biological, and Environmental Statistics</i>, 14(3), 356–373.</li>
@@ -147,10 +150,10 @@
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">Executives</p>
-        <h2 class="h-section">역대 임원진</h2>
+        <h2 class="h-section" data-i18n>역대 임원진</h2>
       </div>
 
-      <div class="gen-tabs" id="genTabs" role="group" aria-label="기수 선택"></div>
+      <div class="gen-tabs" id="genTabs" role="group" aria-label="기수 선택" data-i18n-attr="aria-label"></div>
       <p class="eyebrow" id="genCaption" style="margin-bottom:20px"></p>
       <div class="member-grid" id="memberGrid" aria-live="polite"></div>
     </div>
@@ -160,7 +163,7 @@
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">Awards</p>
-        <h2 class="h-section">역대 수상 내역</h2>
+        <h2 class="h-section" data-i18n>역대 수상 내역</h2>
       </div>
       <div class="awards-grid" id="awardsGrid"></div>
     </div>
@@ -171,7 +174,7 @@
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">History</p>
-        <h2 class="h-section">설립 및 연혁</h2>
+        <h2 class="h-section" data-i18n>설립 및 연혁</h2>
       </div>
       <div class="timeline" id="timeline"></div>
     </div>
@@ -182,65 +185,65 @@
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">Activities</p>
-        <h2 class="h-section">주요 활동</h2>
+        <h2 class="h-section" data-i18n>주요 활동</h2>
       </div>
 
-      <h3 class="sub-label">연간 일정</h3>
+      <h3 class="sub-label" data-i18n>연간 일정</h3>
       <div class="rows">
         <article class="row">
-          <span class="row-badge">합격 이후</span>
+          <span class="row-badge" data-i18n>합격 이후</span>
           <div class="row-main">
-            <h3 class="row-title">신입 교육 <em>Onboarding</em></h3>
-            <p class="row-desc">프로젝트 경험이 부족한 신입 기수를 대상으로 기본적인 분석 지식과 스킬을 교육합니다.</p>
+            <h3 class="row-title"><span data-i18n>신입 교육</span> <em>Onboarding</em></h3>
+            <p class="row-desc" data-i18n>프로젝트 경험이 부족한 신입 기수를 대상으로 기본적인 분석 지식과 스킬을 교육합니다.</p>
           </div>
         </article>
         <article class="row">
-          <span class="row-badge">3월 – 6월</span>
+          <span class="row-badge" data-i18n>3월 – 6월</span>
           <div class="row-main">
-            <h3 class="row-title">상반기 프로젝트 <em>Spring Project</em></h3>
-            <p class="row-desc">기수별 팀을 이뤄 실제 데이터로 EDA부터 모델링까지 진행합니다.</p>
+            <h3 class="row-title"><span data-i18n>상반기 프로젝트</span> <em>Spring Project</em></h3>
+            <p class="row-desc" data-i18n>기수별 팀을 이뤄 실제 데이터로 EDA부터 모델링까지 진행합니다.</p>
           </div>
         </article>
         <article class="row">
-          <span class="row-badge">7월 – 8월</span>
+          <span class="row-badge" data-i18n>7월 – 8월</span>
           <div class="row-main">
-            <h3 class="row-title">공모전 <em>Competition</em></h3>
-            <p class="row-desc">본인이 원하는 대외 공모전에 참여해 프로젝트를 대체합니다.</p>
+            <h3 class="row-title"><span data-i18n>공모전</span> <em>Competition</em></h3>
+            <p class="row-desc" data-i18n>본인이 원하는 대외 공모전에 참여해 프로젝트를 대체합니다.</p>
           </div>
         </article>
         <article class="row">
-          <span class="row-badge">9월 – 12월</span>
+          <span class="row-badge" data-i18n>9월 – 12월</span>
           <div class="row-main">
-            <h3 class="row-title">하반기 프로젝트 <em>Fall Project</em></h3>
-            <p class="row-desc">새 기수와 팀을 구성해 한 학기 프로젝트를 진행합니다.</p>
+            <h3 class="row-title"><span data-i18n>하반기 프로젝트</span> <em>Fall Project</em></h3>
+            <p class="row-desc" data-i18n>새 기수와 팀을 구성해 한 학기 프로젝트를 진행합니다.</p>
           </div>
         </article>
         <article class="row">
-          <span class="row-badge">1월 – 2월</span>
+          <span class="row-badge" data-i18n>1월 – 2월</span>
           <div class="row-main">
-            <h3 class="row-title">스터디 <em>Winter Study</em></h3>
-            <p class="row-desc">심화된 주제를 정해 팀 단위로 스터디합니다.</p>
+            <h3 class="row-title"><span data-i18n>스터디</span> <em>Winter Study</em></h3>
+            <p class="row-desc" data-i18n>심화된 주제를 정해 팀 단위로 스터디합니다.</p>
           </div>
         </article>
         <article class="row row--side">
-          <span class="row-badge row-badge--side">프로젝트 기간</span>
+          <span class="row-badge row-badge--side" data-i18n>프로젝트 기간</span>
           <div class="row-main">
             <h3 class="row-title">SQL CHALLENGE <em>Side Project</em></h3>
-            <p class="row-desc">상반기·하반기 프로젝트 세션 기간에 사이드 프로젝트로 병행합니다.</p>
+            <p class="row-desc" data-i18n>상반기·하반기 프로젝트 세션 기간에 사이드 프로젝트로 병행합니다.</p>
           </div>
         </article>
       </div>
 
-      <h3 class="sub-label" style="margin-top:56px">그 외 활동</h3>
+      <h3 class="sub-label" style="margin-top:56px" data-i18n>그 외 활동</h3>
       <div class="grid grid-2">
         <article class="card">
-          <h3>취업 특강</h3>
-          <p>졸업하신 선배님들의 취업 후기와 취업 정보를 공유받는 특강입니다.</p>
+          <h3 data-i18n>취업 특강</h3>
+          <p data-i18n>졸업하신 선배님들의 취업 후기와 취업 정보를 공유받는 특강입니다.</p>
         </article>
 
         <article class="card">
-          <h3>비어플의 밤</h3>
-          <p>비어플의 가장 큰 행사로, 여러 직무에 대한 선배님들의 취업 특강이 진행됩니다. 특강 이후 회식에서 졸업기수와 학회원이 자유롭게 질문과 조언을 나눕니다.</p>
+          <h3 data-i18n>비어플의 밤</h3>
+          <p data-i18n>비어플의 가장 큰 행사로, 여러 직무에 대한 선배님들의 취업 특강이 진행됩니다. 특강 이후 회식에서 졸업기수와 학회원이 자유롭게 질문과 조언을 나눕니다.</p>
         </article>
       </div>
     </div>
@@ -255,38 +258,38 @@
     <div class="footer-top">
       <div>
         <a class="brand" href="index.html">
-          <img src="assets/logo.png" alt="B.a.f 로고" width="40" height="37">
+          <img src="assets/logo.png" alt="B.a.f 로고" data-i18n-attr="alt" width="40" height="37">
           <span class="brand-text">B.a.f</span>
         </a>
-        <p class="footer-desc">동국대학교 유일의 빅데이터 학회. 데이터에 대한 실제적 접근을 통해 사회가 요구하는 데이터 사이언티스트를 양성합니다.</p>
+        <p class="footer-desc" data-i18n>동국대학교 유일의 빅데이터 학회. 데이터에 대한 실제적 접근을 통해 사회가 요구하는 데이터 사이언티스트를 양성합니다.</p>
       </div>
 
       <div>
-        <h4>학회소개</h4>
+        <h4 data-i18n>학회소개</h4>
         <ul class="footer-links">
-          <li><a href="about.html#greeting">인사말</a></li>
-          <li><a href="about.html#members">임원진</a></li>
-          <li><a href="about.html#awards">수상 내역</a></li>
-          <li><a href="about.html#history">설립 및 연혁</a></li>
-          <li><a href="about.html#activities">주요활동</a></li>
+          <li><a href="about.html#greeting" data-i18n>인사말</a></li>
+          <li><a href="about.html#members" data-i18n>임원진</a></li>
+          <li><a href="about.html#awards" data-i18n>수상 내역</a></li>
+          <li><a href="about.html#history" data-i18n>설립 및 연혁</a></li>
+          <li><a href="about.html#activities" data-i18n>주요활동</a></li>
         </ul>
       </div>
 
       <div>
-        <h4>바로가기</h4>
+        <h4 data-i18n>바로가기</h4>
         <ul class="footer-links">
-          <li><a href="index.html">홈</a></li>
-          <li><a href="archive.html">자료실</a></li>
-          <li><a href="notice.html#notice">공지사항</a></li>
+          <li><a href="index.html" data-i18n>홈</a></li>
+          <li><a href="archive.html" data-i18n>자료실</a></li>
+          <li><a href="notice.html#notice" data-i18n>공지사항</a></li>
           <li><a href="notice.html#faq">FAQ</a></li>
-          <li><a href="contact.html">문의하기</a></li>
+          <li><a href="contact.html" data-i18n>문의하기</a></li>
         </ul>
       </div>
 
       <div>
         <h4>Contact</h4>
         <ul class="footer-links">
-          <li>서울특별시 중구 필동로1길 30<br>동국대학교 과학관 1층 AH 실</li>
+          <li data-i18n>서울특별시 중구 필동로1길 30<br>동국대학교 과학관 1층 AH 실</li>
           <li><a href="mailto:dgstatbaf@gmail.com">dgstatbaf@gmail.com</a></li>
           <li class="footer-social">
             <a href="https://www.instagram.com/bafdgu/" target="_blank" rel="noopener" aria-label="Instagram">
@@ -309,6 +312,7 @@
   </div>
 </footer>
 
+<script src="i18n.js?v=1"></script>
 <script src="supabase-config.js?v=2"></script>
 <script src="script.js?v=11"></script>
 </body>

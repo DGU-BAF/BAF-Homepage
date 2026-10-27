@@ -26,6 +26,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=11">
+<!-- 영어 사용자는 번역이 끝날 때까지 본문을 숨긴다 (i18n.js 가 해제, 실패해도 3초 뒤 표시) -->
+<script>try{if(localStorage.getItem('baf-lang')==='eng'){var h=document.documentElement;h.classList.add('i18n-wait');setTimeout(function(){h.classList.remove('i18n-wait')},3000)}}catch(e){}</script>
 <!-- Google Analytics (GA4) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QDEGRTZ1ZK"></script>
 <script>
@@ -36,47 +38,48 @@
 </script>
 </head>
 <body data-page="home">
-<a class="skip" href="#main">본문으로 건너뛰기</a>
+<a class="skip" href="#main" data-i18n>본문으로 건너뛰기</a>
 
 <div class="nav-shell">
   <div class="nav-bar">
     <a class="brand" href="index.html">
-      <img src="assets/logo-wordmark.png" alt="B.a.f · 동국대학교 빅데이터 분석 학회" width="149" height="42">
+      <img src="assets/logo-wordmark.png" alt="B.a.f · 동국대학교 빅데이터 분석 학회" data-i18n-attr="alt" width="149" height="42">
     </a>
 
-    <button class="nav-toggle" id="navToggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="nav">
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="메뉴 열기" data-i18n-attr="aria-label" aria-expanded="false" aria-controls="nav">
       <span></span><span></span><span></span>
     </button>
 
-    <nav class="nav" id="nav" aria-label="주요 메뉴">
+    <nav class="nav" id="nav" aria-label="주요 메뉴" data-i18n-attr="aria-label">
       <ul class="nav-list">
         <li class="nav-item has-sub">
-          <a class="nav-link" data-page="about" href="about.html">학회소개
+          <a class="nav-link" data-page="about" href="about.html"><span data-i18n>학회소개</span>
             <svg class="nav-caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 8.6 1.2 3.8h9.6z"/></svg>
           </a>
           <ul class="nav-sub">
-            <li><a href="about.html#greeting">인사말</a></li>
-            <li><a href="about.html#members">임원진</a></li>
-            <li><a href="about.html#awards">수상 내역</a></li>
-            <li><a href="about.html#history">설립 및 연혁</a></li>
-            <li><a href="about.html#activities">주요활동</a></li>
+            <li><a href="about.html#greeting" data-i18n>인사말</a></li>
+            <li><a href="about.html#members" data-i18n>임원진</a></li>
+            <li><a href="about.html#awards" data-i18n>수상 내역</a></li>
+            <li><a href="about.html#history" data-i18n>설립 및 연혁</a></li>
+            <li><a href="about.html#activities" data-i18n>주요활동</a></li>
           </ul>
         </li>
-        <li class="nav-item"><a class="nav-link" data-page="archive" href="archive.html">자료실</a></li>
+        <li class="nav-item"><a class="nav-link" data-page="archive" href="archive.html" data-i18n>자료실</a></li>
         <li class="nav-item has-sub">
-          <a class="nav-link" data-page="notice" href="notice.html">전체공지
+          <a class="nav-link" data-page="notice" href="notice.html"><span data-i18n>전체공지</span>
             <svg class="nav-caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 8.6 1.2 3.8h9.6z"/></svg>
           </a>
           <ul class="nav-sub">
-            <li><a href="notice.html#notice">공지사항</a></li>
+            <li><a href="notice.html#notice" data-i18n>공지사항</a></li>
             <li><a href="notice.html#faq">FAQ</a></li>
           </ul>
         </li>
       </ul>
 
       <div class="nav-actions">
-        <button class="btn btn--sm btn--off" type="button" id="applyBtn" disabled>지원 안내</button>
-        <a class="btn btn--ghost btn--sm" data-page="contact" href="contact.html">문의하기</a>
+        <button class="btn btn--sm btn--off" type="button" id="applyBtn" disabled data-i18n>지원 안내</button>
+        <a class="btn btn--ghost btn--sm" data-page="contact" href="contact.html" data-i18n>문의하기</a>
+        <div class="lang" id="langSwitch"></div>
       </div>
     </nav>
   </div>
@@ -92,11 +95,11 @@
         <span class="hero-title">welcome to</span>
         <span class="hero-brand">B.a.f</span>
       </h1>
-      <p class="hero-type">데이터로 <span class="hero-type-out" id="heroType">세상을 읽습니다</span></p>
-      <p class="hero-desc">동국대학교 유일 빅데이터 학회로서, Data에 대한 실제적인 접근을 통해 <br>사회가 요구하는 데이터 사이언티스트를 양성하고 있습니다.</p>
+      <p class="hero-type"><span data-i18n>데이터로</span> <span class="hero-type-out" id="heroType">세상을 읽습니다</span></p>
+      <p class="hero-desc" data-i18n>동국대학교 유일 빅데이터 학회로서, Data에 대한 실제적인 접근을 통해 <br>사회가 요구하는 데이터 사이언티스트를 양성하고 있습니다.</p>
       <div class="hero-actions">
-        <a class="btn btn--primary" href="about.html">학회 소개 보기</a>
-        <a class="btn btn--ghost" href="contact.html">문의하기</a>
+        <a class="btn btn--primary" href="about.html" data-i18n>학회 소개 보기</a>
+        <a class="btn btn--ghost" href="contact.html" data-i18n>문의하기</a>
       </div>
     </div>
   </section>
@@ -106,62 +109,62 @@
     <div class="wrap">
       <div class="section-head section-head--center reveal">
         <p class="eyebrow">Activities</p>
-        <h2 class="h-section">주요 활동</h2>
+        <h2 class="h-section" data-i18n>주요 활동</h2>
       </div>
 
       <div class="act-timeline reveal" aria-hidden="true">
-        <div class="act-tl-node"><span class="act-tl-dot"></span><span class="act-tl-period">합격 이후</span></div>
-        <div class="act-tl-node"><span class="act-tl-dot"></span><span class="act-tl-period">3 – 6월</span></div>
-        <div class="act-tl-node"><span class="act-tl-dot"></span><span class="act-tl-period">7 – 8월</span></div>
-        <div class="act-tl-node"><span class="act-tl-dot"></span><span class="act-tl-period">9 – 12월</span></div>
-        <div class="act-tl-node"><span class="act-tl-dot"></span><span class="act-tl-period">1 – 2월</span></div>
+        <div class="act-tl-node"><span class="act-tl-dot"></span><span class="act-tl-period" data-i18n>합격 이후</span></div>
+        <div class="act-tl-node"><span class="act-tl-dot"></span><span class="act-tl-period" data-i18n>3 – 6월</span></div>
+        <div class="act-tl-node"><span class="act-tl-dot"></span><span class="act-tl-period" data-i18n>7 – 8월</span></div>
+        <div class="act-tl-node"><span class="act-tl-dot"></span><span class="act-tl-period" data-i18n>9 – 12월</span></div>
+        <div class="act-tl-node"><span class="act-tl-dot"></span><span class="act-tl-period" data-i18n>1 – 2월</span></div>
       </div>
 
       <div class="grid grid-5 act-flow">
         <a class="act-card reveal" href="about.html#activities" data-reveal-index="0">
           <figure>
-            <img src="assets/session-onboarding.png" alt="신입 교육" loading="lazy" width="1448" height="1086">          </figure>
+            <img src="assets/session-onboarding.png" alt="신입 교육" data-i18n-attr="alt" loading="lazy" width="1448" height="1086">          </figure>
           <div class="act-card-body">
             <span class="act-card-num">01</span>
-            <h3>신입 교육<span class="en">Onboarding</span></h3>
+            <h3><span data-i18n>신입 교육</span><span class="en">Onboarding</span></h3>
           </div>
         </a>
 
         <a class="act-card reveal" href="about.html#activities" data-reveal-index="1">
           <figure>
-            <img src="assets/session-project-1.png" alt="상반기 프로젝트" loading="lazy" width="1448" height="1086">          </figure>
+            <img src="assets/session-project-1.png" alt="상반기 프로젝트" data-i18n-attr="alt" loading="lazy" width="1448" height="1086">          </figure>
           <div class="act-card-body">
             <span class="act-card-num">02</span>
-            <h3>상반기 프로젝트<span class="en">Spring Project</span></h3>
+            <h3><span data-i18n>상반기 프로젝트</span><span class="en">Spring Project</span></h3>
             <span class="act-side">+ SQL CHALLENGE</span>
           </div>
         </a>
 
         <a class="act-card reveal" href="about.html#activities" data-reveal-index="2">
           <figure>
-            <img src="assets/session-competition.png" alt="공모전" loading="lazy" width="1448" height="1086">          </figure>
+            <img src="assets/session-competition.png" alt="공모전" data-i18n-attr="alt" loading="lazy" width="1448" height="1086">          </figure>
           <div class="act-card-body">
             <span class="act-card-num">03</span>
-            <h3>공모전<span class="en">Competition</span></h3>
+            <h3><span data-i18n>공모전</span><span class="en">Competition</span></h3>
           </div>
         </a>
 
         <a class="act-card reveal" href="about.html#activities" data-reveal-index="3">
           <figure>
-            <img src="assets/session-project-2.png" alt="하반기 프로젝트" loading="lazy" width="1448" height="1086">          </figure>
+            <img src="assets/session-project-2.png" alt="하반기 프로젝트" data-i18n-attr="alt" loading="lazy" width="1448" height="1086">          </figure>
           <div class="act-card-body">
             <span class="act-card-num">04</span>
-            <h3>하반기 프로젝트<span class="en">Fall Project</span></h3>
+            <h3><span data-i18n>하반기 프로젝트</span><span class="en">Fall Project</span></h3>
             <span class="act-side">+ SQL CHALLENGE</span>
           </div>
         </a>
 
         <a class="act-card reveal" href="about.html#activities" data-reveal-index="4">
           <figure>
-            <img src="assets/session-study.png" alt="스터디" loading="lazy" width="1448" height="1086">          </figure>
+            <img src="assets/session-study.png" alt="스터디" data-i18n-attr="alt" loading="lazy" width="1448" height="1086">          </figure>
           <div class="act-card-body">
             <span class="act-card-num">05</span>
-            <h3>스터디<span class="en">Winter Study</span></h3>
+            <h3><span data-i18n>스터디</span><span class="en">Winter Study</span></h3>
           </div>
         </a>
       </div>
@@ -173,7 +176,7 @@
     <div class="wrap">
       <div class="section-head section-head--center reveal">
         <p class="eyebrow">Support</p>
-        <h2 class="h-section">학회원 지원</h2>
+        <h2 class="h-section" data-i18n>학회원 지원</h2>
       </div>
 
       <div class="support-cats">
@@ -184,13 +187,13 @@
           <div class="cat-head">
             <span class="cat-num">01</span>
             <h3>Project & Learning</h3>
-            <p>데이터 분석 실무 경험과 학습 자산을 쌓습니다.</p>
+            <p data-i18n>데이터 분석 실무 경험과 학습 자산을 쌓습니다.</p>
           </div>
           <ul class="cat-list">
-            <li>기수별 팀 프로젝트</li>
-            <li>대외 공모전 참여</li>
-            <li>교육 자료 · 역대 프로젝트 자료</li>
-            <li>협업 환경 지원</li>
+            <li data-i18n>기수별 팀 프로젝트</li>
+            <li data-i18n>대외 공모전 참여</li>
+            <li data-i18n>교육 자료 · 역대 프로젝트 자료</li>
+            <li data-i18n>협업 환경 지원</li>
           </ul>
         </article>
 
@@ -201,12 +204,12 @@
           <div class="cat-head">
             <span class="cat-num">02</span>
             <h3>Community</h3>
-            <p>선후배가 이어지는 네트워크를 만들어갑니다.</p>
+            <p data-i18n>선후배가 이어지는 네트워크를 만들어갑니다.</p>
           </div>
           <ul class="cat-list">
-            <li>비어플의 밤</li>
-            <li>졸업 기수와의 교류</li>
-            <li>학회원 간 네트워킹</li>
+            <li data-i18n>비어플의 밤</li>
+            <li data-i18n>졸업 기수와의 교류</li>
+            <li data-i18n>학회원 간 네트워킹</li>
           </ul>
         </article>
 
@@ -217,13 +220,13 @@
           <div class="cat-head">
             <span class="cat-num">03</span>
             <h3>Career</h3>
-            <p>진로 탐색부터 취업 준비까지 이어집니다.</p>
+            <p data-i18n>진로 탐색부터 취업 준비까지 이어집니다.</p>
           </div>
           <ul class="cat-list">
-            <li>취업 특강</li>
-            <li>공모전 · 채용박람회 등 대외활동 공지</li>
-            <li>기업 연계 특별추천 채용</li>
-            <li>인턴 모집 공고</li>
+            <li data-i18n>취업 특강</li>
+            <li data-i18n>공모전 · 채용박람회 등 대외활동 공지</li>
+            <li data-i18n>기업 연계 특별추천 채용</li>
+            <li data-i18n>인턴 모집 공고</li>
           </ul>
         </article>
       </div>
@@ -235,7 +238,7 @@
     <div class="wrap">
       <div class="section-head section-head--center reveal">
         <p class="eyebrow">Awards</p>
-        <h2 class="h-section">수상 내역</h2>
+        <h2 class="h-section" data-i18n="home.awards">수상 내역</h2>
       </div>
     </div>
 
@@ -243,7 +246,7 @@
 
     <div class="wrap">
       <p style="text-align:center;margin-top:44px" class="reveal">
-        <a class="btn btn--ghost" href="about.html#awards">역대 수상 내역 전체 보기</a>
+        <a class="btn btn--ghost" href="about.html#awards" data-i18n>역대 수상 내역 전체 보기</a>
       </p>
     </div>
   </section>
@@ -253,33 +256,33 @@
     <div class="wrap">
       <div class="section-head section-head--center reveal">
         <p class="eyebrow">Process</p>
-        <h2 class="h-section">지원 절차</h2>
+        <h2 class="h-section" data-i18n>지원 절차</h2>
       </div>
 
       <ol class="flow reveal">
         <span class="flow-rail" aria-hidden="true"></span>
         <li>
-          <span class="flow-label">서류 지원 접수</span>
+          <span class="flow-label" data-i18n>서류 지원 접수</span>
           <span class="flow-dot"><b>1</b></span>
-          <span class="flow-meta">매년 6월 · 12월</span>
+          <span class="flow-meta" data-i18n>매년 6월 · 12월</span>
         </li>
         <li>
-          <span class="flow-label">서류 결과 발표</span>
+          <span class="flow-label" data-i18n>서류 결과 발표</span>
           <span class="flow-dot"><b>2</b></span>
           <span class="flow-meta"></span>
         </li>
         <li>
-          <span class="flow-label">면접</span>
+          <span class="flow-label" data-i18n>면접</span>
           <span class="flow-dot"><b>3</b></span>
           <span class="flow-meta"></span>
         </li>
         <li>
-          <span class="flow-label">최종 결과 발표</span>
+          <span class="flow-label" data-i18n>최종 결과 발표</span>
           <span class="flow-dot"><b>4</b></span>
           <span class="flow-meta"></span>
         </li>
         <li>
-          <span class="flow-label">신입 교육 이수</span>
+          <span class="flow-label" data-i18n>신입 교육 이수</span>
           <span class="flow-dot"><b>5</b></span>
           <span class="flow-meta"></span>
         </li>
@@ -295,38 +298,38 @@
     <div class="footer-top">
       <div>
         <a class="brand" href="index.html">
-          <img src="assets/logo.png" alt="B.a.f 로고" width="40" height="37">
+          <img src="assets/logo.png" alt="B.a.f 로고" data-i18n-attr="alt" width="40" height="37">
           <span class="brand-text">B.a.f</span>
         </a>
-        <p class="footer-desc">동국대학교 유일의 빅데이터 학회. 데이터에 대한 실제적 접근을 통해 사회가 요구하는 데이터 사이언티스트를 양성합니다.</p>
+        <p class="footer-desc" data-i18n>동국대학교 유일의 빅데이터 학회. 데이터에 대한 실제적 접근을 통해 사회가 요구하는 데이터 사이언티스트를 양성합니다.</p>
       </div>
 
       <div>
-        <h4>학회소개</h4>
+        <h4 data-i18n>학회소개</h4>
         <ul class="footer-links">
-          <li><a href="about.html#greeting">인사말</a></li>
-          <li><a href="about.html#members">임원진</a></li>
-          <li><a href="about.html#awards">수상 내역</a></li>
-          <li><a href="about.html#history">설립 및 연혁</a></li>
-          <li><a href="about.html#activities">주요활동</a></li>
+          <li><a href="about.html#greeting" data-i18n>인사말</a></li>
+          <li><a href="about.html#members" data-i18n>임원진</a></li>
+          <li><a href="about.html#awards" data-i18n>수상 내역</a></li>
+          <li><a href="about.html#history" data-i18n>설립 및 연혁</a></li>
+          <li><a href="about.html#activities" data-i18n>주요활동</a></li>
         </ul>
       </div>
 
       <div>
-        <h4>바로가기</h4>
+        <h4 data-i18n>바로가기</h4>
         <ul class="footer-links">
-          <li><a href="index.html">홈</a></li>
-          <li><a href="archive.html">자료실</a></li>
-          <li><a href="notice.html#notice">공지사항</a></li>
+          <li><a href="index.html" data-i18n>홈</a></li>
+          <li><a href="archive.html" data-i18n>자료실</a></li>
+          <li><a href="notice.html#notice" data-i18n>공지사항</a></li>
           <li><a href="notice.html#faq">FAQ</a></li>
-          <li><a href="contact.html">문의하기</a></li>
+          <li><a href="contact.html" data-i18n>문의하기</a></li>
         </ul>
       </div>
 
       <div>
         <h4>Contact</h4>
         <ul class="footer-links">
-          <li>서울특별시 중구 필동로1길 30<br>동국대학교 과학관 1층 AH 실</li>
+          <li data-i18n>서울특별시 중구 필동로1길 30<br>동국대학교 과학관 1층 AH 실</li>
           <li><a href="mailto:dgstatbaf@gmail.com">dgstatbaf@gmail.com</a></li>
           <li class="footer-social">
             <a href="https://www.instagram.com/bafdgu/" target="_blank" rel="noopener" aria-label="Instagram">
@@ -349,6 +352,7 @@
   </div>
 </footer>
 
+<script src="i18n.js?v=1"></script>
 <script src="supabase-config.js?v=2"></script>
 <script src="script.js?v=11"></script>
 </body>

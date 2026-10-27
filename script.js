@@ -282,15 +282,26 @@ const AWARDS = [
 const $  = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* 번역 도우미 (i18n.js). 그 파일을 못 불러와도 한국어로는 동작한다 */
+const { lang: LANG, isEn: IS_EN, t } = window.I18N || { lang: 'kor', isEn: false, t: (s) => s };
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => (
   { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
 ));
 
-/* 상 등급 단어에 색 강조: 대상=골드, 최우수상=블루, 우수상=하늘, 그 외=회색 */
+/* 1 → 1st, 2 → 2nd, 11 → 11th (영어 기수 표기) */
+const ordinal = (n) => {
+  const s = ['th', 'st', 'nd', 'rd'], v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+
+/* 상 등급 단어에 색 강조: 대상=골드, 최우수상=블루, 우수상=하늘, 그 외=회색 (영문 번역도 같은 규칙) */
 function prizeHTML(text) {
   const TIERS = [
     ['최우수상', 'blue'], ['우수상', 'sky'], ['대상', 'gold'], ['금상', 'gold'],
-    ['장려상', 'gray'], ['입선', 'gray'], ['입상', 'gray'], ['2위', 'gray'], ['3위', 'gray']
+    ['장려상', 'gray'], ['입선', 'gray'], ['입상', 'gray'], ['2위', 'gray'], ['3위', 'gray'],
+    ['Top Excellence Award', 'blue'], ['Excellence Award', 'sky'], ['Grand Prize', 'gold'],
+    ['Gold Prize', 'gold'], ['Honorable Mention', 'gray'], ['Selected Entry', 'gray'],
+    ['Award Winner', 'gray'], ['2nd Place', 'gray'], ['3rd Place', 'gray']
   ];
   for (const [kw, tier] of TIERS) {
     const i = text.lastIndexOf(kw);
@@ -326,7 +337,7 @@ function initNav() {
     toggle.addEventListener('click', () => {
       const open = document.documentElement.classList.toggle('nav-open');
       toggle.setAttribute('aria-expanded', String(open));
-      toggle.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+      toggle.setAttribute('aria-label', t(open ? '메뉴 닫기' : '메뉴 열기'));
       document.body.style.overflow = open ? 'hidden' : '';
     });
   }
@@ -360,6 +371,60 @@ function initNav() {
 }
 
 /* ------------------------------------------------------------
+   LANG — 언어 선택 (번역은 i18n.js, 바꾸면 새로고침해서 다시 그린다)
+   ------------------------------------------------------------ */
+const LANGS = [
+  { code: 'kor', label: 'KOR', name: '한국어',
+    flag: `<svg class="flag" viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#fff"/><path d="M10 10a5 5 0 0 1 10 0z" fill="#cd2e3a"/><path d="M10 10a5 5 0 0 0 10 0z" fill="#0047a0"/><circle cx="12.5" cy="10" r="2.5" fill="#cd2e3a"/><circle cx="17.5" cy="10" r="2.5" fill="#0047a0"/><g fill="#000"><g transform="rotate(-56.3 5.5 4.4)"><rect x="3.5" y="2.6" width="4" height=".9"/><rect x="3.5" y="4" width="4" height=".9"/><rect x="3.5" y="5.4" width="4" height=".9"/></g><g transform="rotate(56.3 24.5 4.4)"><rect x="22.5" y="2.6" width="4" height=".9"/><rect x="22.5" y="4" width="4" height=".9"/><rect x="22.5" y="5.4" width="4" height=".9"/></g><g transform="rotate(56.3 5.5 15.6)"><rect x="3.5" y="13.8" width="4" height=".9"/><rect x="3.5" y="15.2" width="4" height=".9"/><rect x="3.5" y="16.6" width="4" height=".9"/></g><g transform="rotate(-56.3 24.5 15.6)"><rect x="22.5" y="13.8" width="4" height=".9"/><rect x="22.5" y="15.2" width="4" height=".9"/><rect x="22.5" y="16.6" width="4" height=".9"/></g></g></svg>` },
+  { code: 'eng', label: 'ENG', name: 'English',
+    flag: `<svg class="flag" viewBox="0 0 30 20" aria-hidden="true"><rect width="30" height="20" fill="#fff"/><g fill="#b22234"><rect width="30" height="1.54"/><rect y="3.08" width="30" height="1.54"/><rect y="6.15" width="30" height="1.54"/><rect y="9.23" width="30" height="1.54"/><rect y="12.31" width="30" height="1.54"/><rect y="15.38" width="30" height="1.54"/><rect y="18.46" width="30" height="1.54"/></g><rect width="12" height="10.77" fill="#3c3b6e"/><g fill="#fff"><circle cx="2" cy="2" r=".6"/><circle cx="6" cy="2" r=".6"/><circle cx="10" cy="2" r=".6"/><circle cx="4" cy="4.4" r=".6"/><circle cx="8" cy="4.4" r=".6"/><circle cx="2" cy="6.8" r=".6"/><circle cx="6" cy="6.8" r=".6"/><circle cx="10" cy="6.8" r=".6"/><circle cx="4" cy="9.2" r=".6"/><circle cx="8" cy="9.2" r=".6"/></g></svg>` }
+];
+
+function initLang() {
+  const box = $('#langSwitch');
+  if (!box) return;
+
+  const cur = LANG;
+
+  const render = () => {
+    const now = LANGS.find((l) => l.code === cur) || LANGS[0];
+    box.innerHTML = `
+      <button class="lang-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="${t('언어 선택')}: ${now.name}">
+        ${now.flag}<span>${now.label}</span>
+        <svg class="nav-caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 8.6 1.2 3.8h9.6z"/></svg>
+      </button>
+      <div class="lang-menu" role="menu">
+        ${LANGS.map((l) => `
+          <button type="button" role="menuitemradio" aria-checked="${l.code === cur}" data-lang="${l.code}">
+            ${l.flag}<span>${l.label}</span><small>${l.name}</small>
+          </button>`).join('')}
+      </div>`;
+  };
+
+  const setOpen = (open) => {
+    box.classList.toggle('is-open', open);
+    const btn = $('.lang-btn', box);
+    if (btn) btn.setAttribute('aria-expanded', String(open));
+  };
+
+  box.addEventListener('click', (e) => {
+    const opt = e.target.closest('[data-lang]');
+    if (opt) {
+      setOpen(false);
+      if (opt.dataset.lang === cur) return;
+      try { localStorage.setItem('baf-lang', opt.dataset.lang); } catch (err) { return; }
+      location.reload();
+      return;
+    }
+    if (e.target.closest('.lang-btn')) setOpen(!box.classList.contains('is-open'));
+  });
+  document.addEventListener('click', (e) => { if (!box.contains(e.target)) setOpen(false); });
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+
+  render();
+}
+
+/* ------------------------------------------------------------
    APPLY — 지원하기 버튼
    ------------------------------------------------------------ */
 async function initApply() {
@@ -382,6 +447,9 @@ async function initApply() {
       }
     } catch (e) { /* 네트워크 실패 시 기본값 유지 */ }
   }
+
+  /* 버튼 문구는 관리자가 한국어로 입력하므로 영어에선 상태에 맞는 고정 문구를 쓴다 */
+  if (IS_EN) cfg.label = cfg.url ? 'Apply Now' : 'Applications Closed';
 
   /* 폼 주소가 없으면 회색 비활성 버튼 그대로 둔다 */
   if (!cfg.url) {
@@ -591,7 +659,7 @@ function initHeroType() {
   const el = $('#heroType');
   if (!el) return;
 
-  const PHRASES = ['세상을 읽습니다', '패턴을 찾아냅니다', '내일을 예측합니다'];
+  const PHRASES = ['세상을 읽습니다', '패턴을 찾아냅니다', '내일을 예측합니다'].map(t);
   const TYPE = 100;      /* 한 글자 입력 */
   const ERASE = 45;      /* 한 글자 삭제 */
   const HOLD = 1700;     /* 완성 후 멈춤 */
@@ -637,21 +705,25 @@ function initQuotes() {
 
   const gen = EXECUTIVES.find((g) => g.current) || EXECUTIVES[EXECUTIVES.length - 1];
   const title = $('#quoteTitle');
-  if (title) title.textContent = `${gen.gen}대 임원진의 한마디`;
+  if (title) {
+    title.textContent = IS_EN
+      ? `Words from the ${ordinal(gen.gen)} Executive Board`
+      : `${gen.gen}대 임원진의 한마디`;
+  }
 
   grid.innerHTML = gen.members.map((m) => {
     /* 사진이 아직 없으면 이름 첫 글자로 대신한다 */
     const face = m.photo
-      ? `<img src="${esc(m.photo)}" alt="${esc(m.role)} ${esc(m.name)}" width="180" height="180" loading="lazy">`
+      ? `<img src="${esc(m.photo)}" alt="${esc(t(m.role))} ${esc(m.name)}" width="180" height="180" loading="lazy">`
       : `<span class="qrow-blank" aria-hidden="true">${esc(m.name.slice(0, 1))}</span>`;
     const quote = m.quote
-      ? `<p>${esc(m.quote)}</p>`
-      : '<p class="qrow-todo">한마디 준비 중입니다.</p>';
+      ? `<p>${esc(t(m.quote))}</p>`
+      : `<p class="qrow-todo">${esc(t('한마디 준비 중입니다.'))}</p>`;
     return `
       <figure class="qrow">
         ${face}
         <figcaption>
-          <span class="qrow-role">${esc(m.role)}</span>
+          <span class="qrow-role">${esc(t(m.role))}</span>
           <b class="qrow-name">${esc(m.name)}</b>
           ${quote}
         </figcaption>
@@ -672,7 +744,7 @@ function initMembers() {
 
   tabsBox.innerHTML = ordered.map((g) => `
     <button type="button" class="gen-tab" data-gen="${g.gen}" aria-pressed="false">
-      ${g.gen}대${g.current ? ' · 현' : ''}
+      ${IS_EN ? `${ordinal(g.gen)}${g.current ? ' · Current' : ''}` : `${g.gen}대${g.current ? ' · 현' : ''}`}
     </button>`).join('');
 
   function render(gen) {
@@ -681,19 +753,21 @@ function initMembers() {
     grid.innerHTML = g.members.map((m) => {
       /* 사진이 있으면 사진을, 없으면 이름 첫 글자 아바타를 쓴다 */
       const face = m.photo
-        ? `<img class="face" src="${esc(m.photo)}" alt="${esc(m.role)} ${esc(m.name)}" width="48" height="48" loading="lazy">`
+        ? `<img class="face" src="${esc(m.photo)}" alt="${esc(t(m.role))} ${esc(m.name)}" width="48" height="48" loading="lazy">`
         : `<div class="avatar" aria-hidden="true">${esc(m.name.slice(0, 1))}</div>`;
       return `
       <div class="member">
         ${face}
         <div>
-          <div class="member-role">${esc(m.role)}</div>
+          <div class="member-role">${esc(t(m.role))}</div>
           <div class="member-name">${esc(m.name)}</div>
         </div>
       </div>`;
     }).join('');
     if (caption) {
-      caption.textContent = `${g.gen}대 임원진 · ${g.years}${g.current ? ' (현 임원진)' : ''}`;
+      caption.textContent = IS_EN
+        ? `${ordinal(g.gen)} Executive Board · ${g.years}${g.current ? ' (Current)' : ''}`
+        : `${g.gen}대 임원진 · ${g.years}${g.current ? ' (현 임원진)' : ''}`;
     }
     $$('.gen-tab', tabsBox).forEach((btn) => {
       const on = Number(btn.dataset.gen) === gen;
@@ -721,7 +795,7 @@ function initHistory() {
       <div class="tl-year">${esc(h.year)}</div>
       <ul class="tl-body">
         ${h.items.map((it) => {
-          const text = typeof it === 'string' ? it : it.text;
+          const text = t(typeof it === 'string' ? it : it.text);
           const badge = typeof it === 'string' ? '' : `<span class="tl-badge">${esc(it.badge)}</span>`;
           const body = typeof it === 'string' ? prizeHTML(text) : esc(text);
           return `<li>${body}${badge}</li>`;
@@ -739,14 +813,14 @@ function initAwardsMarquee() {
 
   /* 연도별 묶음을 하나의 목록으로 편다 */
   const flat = [];
-  AWARDS.forEach((g) => g.items.forEach((title) => flat.push({ period: g.period, title })));
+  AWARDS.forEach((g) => g.items.forEach((title) => flat.push({ period: g.period, title: t(title) })));
 
   /* 줄마다 다른 연도가 섞이도록 번갈아 나눈다 */
   const ROWS = 3;
   const rows = Array.from({ length: ROWS }, () => []);
   flat.forEach((a, i) => rows[i % ROWS].push(a));
 
-  const TOP = /대상|최우수상/;                 /* 상위 수상은 강조 */
+  const TOP = /대상|최우수상|Grand Prize|Top Excellence/;   /* 상위 수상은 강조 */
   const SPEED = [64, 52, 74];                   /* 줄마다 다른 속도(초) */
   const OFFSET = [0, -18, -37];                 /* 시작 위치를 어긋나게 */
 
@@ -823,7 +897,7 @@ async function initArchive() {
   const chips = $('#materialFilters');
   if (!list || !chips) return;
 
-  const LABEL = { edu: '교육자료', project: '프로젝트' };
+  const LABEL = { edu: t('교육자료'), project: t('프로젝트') };
 
   /* 자료 데이터: Supabase 우선, 없으면 하드코딩 폴백 */
   let materials = MATERIALS;
@@ -851,7 +925,7 @@ async function initArchive() {
       <div class="mat-block">
         <h4>Output</h4>
         <figure class="mat-output">
-          <img src="${esc(m.outputUrl)}" alt="${esc(m.title)} 결과물" loading="lazy">
+          <img src="${esc(m.outputUrl)}" alt="${esc(m.title)} ${IS_EN ? 'output' : '결과물'}" loading="lazy">
           ${m.outputCaption ? `<figcaption>${esc(m.outputCaption)}</figcaption>` : ''}
         </figure>
       </div>` : '';
@@ -863,7 +937,7 @@ async function initArchive() {
       out,
       block('Members', m.author),
       (m.tags || []).length ? `<div class="tags">${m.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : '',
-      m.file_url ? `<a class="mat-file" href="${esc(m.file_url)}" target="_blank" rel="noopener">자료 받기</a>` : ''
+      m.file_url ? `<a class="mat-file" href="${esc(m.file_url)}" target="_blank" rel="noopener">${t('자료 받기')}</a>` : ''
     ].join('');
   };
 
@@ -877,7 +951,7 @@ async function initArchive() {
           ${m.date ? `<span class="mat-date">${esc(m.date)}</span>` : ''}
         </summary>
         <div class="mat-body">${body(m)}</div>
-      </details>`).join('') : '<p class="empty">해당 분류의 자료가 없습니다.</p>';
+      </details>`).join('') : `<p class="empty">${t('해당 분류의 자료가 없습니다.')}</p>`;
 
     $$('.chip', chips).forEach((c) => {
       c.classList.toggle('is-active', c.dataset.filter === type);
@@ -956,7 +1030,11 @@ async function initNotice() {
     const pages = Math.max(1, Math.ceil(items.length / PER_PAGE));
     if (page > pages) page = pages;
 
-    if (count) count.textContent = `${items.length}건`;
+    if (count) {
+      count.textContent = IS_EN
+        ? `${items.length} ${items.length === 1 ? 'post' : 'posts'}`
+        : `${items.length}건`;
+    }
 
     const slice = items.slice((page - 1) * PER_PAGE, page * PER_PAGE);
     list.innerHTML = slice.length ? slice.map((n) => `
@@ -966,7 +1044,7 @@ async function initNotice() {
           <span class="notice-title">${esc(n.title)}</span>
         </summary>
         <div class="notice-body">${linkify(n.body)}</div>
-      </details>`).join('') : '<p class="empty">검색 결과가 없습니다.</p>';
+      </details>`).join('') : `<p class="empty">${t('검색 결과가 없습니다.')}</p>`;
 
     drawPager(items.length);
   }
@@ -1019,7 +1097,7 @@ function initAwards() {
   box.innerHTML = AWARDS.map((a) => `
     <div class="award-group">
       <h3>${esc(a.period)}</h3>
-      <ul>${a.items.map((i) => `<li>${prizeHTML(i)}</li>`).join('')}</ul>
+      <ul>${a.items.map((i) => `<li>${prizeHTML(t(i))}</li>`).join('')}</ul>
     </div>`).join('');
 }
 
@@ -1077,6 +1155,7 @@ function initFooterAccordion() {
    ------------------------------------------------------------ */
 document.addEventListener('DOMContentLoaded', () => {
   initNav();
+  initLang();
   initFooterAccordion();
   initApply();
   initHero();
