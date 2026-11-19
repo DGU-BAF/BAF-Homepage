@@ -924,6 +924,9 @@ const DOMAIN_ORDER = ['금융', '마케팅', '사회', '스포츠', '의료', '�
 const DOMAIN_EN = { '금융': 'Finance', '마케팅': 'Marketing', '사회': 'Society', '스포츠': 'Sports',
                     '의료': 'Healthcare', '환경': 'Environment', '기타': 'Others' };
 const domainName = (d) => (IS_EN ? DOMAIN_EN[d] || d : d);
+/* 도메인 배지 색 (style.css 의 .dom--*). 목록에 없는 도메인은 회색(etc) */
+const DOMAIN_CLS = { '금융': 'finance', '마케팅': 'marketing', '사회': 'society', '스포츠': 'sports',
+                     '의료': 'health', '환경': 'env', '기타': 'etc' };
 function domainSort(a, b) {
   const rank = (d) => (d === '기타' ? 999 : DOMAIN_ORDER.indexOf(d) + 1 || 500);
   return rank(a) - rank(b) || a.localeCompare(b, 'ko');
@@ -1135,14 +1138,17 @@ async function initArchive() {
   const item = (m) => {
     const cat = MAT_CATS.find((c) => c.key === m.type);
     const when = m.term ? termLabel(m.term) : m.date;
-    /* 왼쪽 배지: 분류 · 학기(없으면 날짜) · 도메인 — 값이 있는 것만 */
-    const badges = [cat ? catName(cat) : m.type, when, m.domain ? domainName(m.domain) : '']
-      .filter(Boolean).map((b) => `<span class="row-badge">${esc(b)}</span>`).join('');
+    /* 왼쪽: 분류 배지 / 오른쪽: 학기(없으면 날짜) · 도메인(도메인마다 다른 색) 배지 */
+    const meta = [
+      when ? `<span class="row-badge">${esc(when)}</span>` : '',
+      m.domain ? `<span class="row-badge dom--${DOMAIN_CLS[m.domain] || 'etc'}">${esc(domainName(m.domain))}</span>` : ''
+    ].join('');
     return `
       <details class="mat-item">
         <summary>
-          <span class="mat-badges">${badges}</span>
+          <span class="row-badge">${esc(cat ? catName(cat) : m.type)}</span>
           <span class="mat-title">${esc(m.title)}</span>
+          ${meta ? `<span class="mat-meta">${meta}</span>` : ''}
         </summary>
         <div class="mat-body">${body(m)}</div>
       </details>`;

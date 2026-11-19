@@ -715,9 +715,17 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
 }
 .mat-item summary::-webkit-details-marker{display:none}
 .mat-title{flex:1;font-size:16px;font-weight:600;color:var(--ink);line-height:1.5}
-/* 왼쪽 배지 묶음: 분류 · 학기 · 도메인 */
-.mat-badges{display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0}
-.mat-badges .row-badge{white-space:nowrap}
+/* 오른쪽 배지 묶음: 학기 · 도메인 */
+.mat-meta{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;flex-shrink:0}
+.mat-meta .row-badge{white-space:nowrap}
+/* 도메인 배지 색 — 도메인마다 다르게 (script.js 의 DOMAIN_CLS) */
+.dom--finance{background:#fff3dc;color:#9a5b00}
+.dom--marketing{background:#fde7f1;color:#b4235f}
+.dom--society{background:#efe9fc;color:#6d3fc0}
+.dom--sports{background:#fdeaea;color:#c0262d}
+.dom--health{background:#e1f5f3;color:#0f766e}
+.dom--env{background:#e6f5e9;color:#237a3b}
+.dom--etc{background:#eef0f3;color:#56606d}
 .mat-item summary::after{
   content:'';flex-shrink:0;width:9px;height:9px;
   border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
@@ -775,9 +783,9 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
 .pdf-viewer.is-error .pdf-pages{display:none}
 
 @media (max-width:620px){
-  /* 휴대폰: 배지(분류·학기·도메인)를 윗줄에, 제목을 아랫줄에 */
+  /* 휴대폰: 윗줄 왼쪽에 분류, 오른쪽에 학기·도메인 / 아랫줄에 제목 */
   .mat-item summary{flex-wrap:wrap;gap:8px 10px;padding:16px 18px}
-  .mat-item summary .mat-badges{margin-right:auto}
+  .mat-item summary > .row-badge{margin-right:auto}
   .mat-item summary .mat-title{order:1;flex-basis:100%}
   .mat-body{padding:2px 16px 20px}
   .pdf-bar{padding:9px 12px}
