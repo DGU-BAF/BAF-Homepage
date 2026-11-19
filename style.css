@@ -715,7 +715,9 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
 }
 .mat-item summary::-webkit-details-marker{display:none}
 .mat-title{flex:1;font-size:16px;font-weight:600;color:var(--ink);line-height:1.5}
-.mat-date{font-size:13px;color:var(--muted);white-space:nowrap}
+/* 왼쪽 배지 묶음: 분류 · 학기 · 도메인 */
+.mat-badges{display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0}
+.mat-badges .row-badge{white-space:nowrap}
 .mat-item summary::after{
   content:'';flex-shrink:0;width:9px;height:9px;
   border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);
@@ -747,15 +749,6 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
 }
 .mat-file:hover{background:#dfeafa}
 
-/* 전체 보기: 분류별 묶음 */
-.mat-group{display:grid;gap:10px}
-.mat-group + .mat-group{margin-top:34px}
-.mat-group-title{
-  display:flex;align-items:baseline;gap:8px;padding:0 6px 4px;
-  font-size:18px;font-weight:700;color:var(--ink);
-}
-.mat-group-title span{font-size:13px;font-weight:600;color:var(--muted)}
-
 /* PDF 뷰어 (항목을 펼치면 script.js 가 쪽을 그린다) */
 .pdf-viewer{
   margin-top:18px;border:1px solid var(--line);border-radius:var(--r-sm);
@@ -782,9 +775,9 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
 .pdf-viewer.is-error .pdf-pages{display:none}
 
 @media (max-width:620px){
-  /* 휴대폰: 분류·학기를 윗줄에, 제목을 아랫줄에 */
+  /* 휴대폰: 배지(분류·학기·도메인)를 윗줄에, 제목을 아랫줄에 */
   .mat-item summary{flex-wrap:wrap;gap:8px 10px;padding:16px 18px}
-  .mat-item summary .row-badge{margin-right:auto}
+  .mat-item summary .mat-badges{margin-right:auto}
   .mat-item summary .mat-title{order:1;flex-basis:100%}
   .mat-body{padding:2px 16px 20px}
   .pdf-bar{padding:9px 12px}

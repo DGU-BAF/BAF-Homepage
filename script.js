@@ -895,7 +895,7 @@ function initSubTabs() {
 /* ------------------------------------------------------------
    ARCHIVE (archive.html) — 프로젝트 페이지
    ------------------------------------------------------------ */
-/* 분류: 이 순서대로 필터 버튼과 '전체'의 묶음이 놓인다 (key 는 DB materials.type 값) */
+/* 분류: 이 순서대로 분류 버튼이 놓이고, 처음에는 첫 번째가 선택된다 (key 는 DB materials.type 값) */
 const MAT_CATS = [
   { key: 'project',     ko: '정규 프로젝트', en: 'Regular Projects' },
   { key: 'competition', ko: '공모전',       en: 'Competitions' },
@@ -1135,21 +1135,23 @@ async function initArchive() {
   const item = (m) => {
     const cat = MAT_CATS.find((c) => c.key === m.type);
     const when = m.term ? termLabel(m.term) : m.date;
+    /* 왼쪽 배지: 분류 · 학기(없으면 날짜) · 도메인 — 값이 있는 것만 */
+    const badges = [cat ? catName(cat) : m.type, when, m.domain ? domainName(m.domain) : '']
+      .filter(Boolean).map((b) => `<span class="row-badge">${esc(b)}</span>`).join('');
     return `
       <details class="mat-item">
         <summary>
-          <span class="row-badge">${esc(cat ? catName(cat) : m.type)}</span>
+          <span class="mat-badges">${badges}</span>
           <span class="mat-title">${esc(m.title)}</span>
-          ${when ? `<span class="mat-date">${esc(when)}</span>` : ''}
         </summary>
         <div class="mat-body">${body(m)}</div>
       </details>`;
   };
   const empty = `<p class="empty">${t('해당 분류의 자료가 없습니다.')}</p>`;
 
-  /* 분류 버튼: 전체 + MAT_CATS 순서 */
-  chips.innerHTML = [['all', t('전체')], ...MAT_CATS.map((c) => [c.key, catName(c)])]
-    .map(([key, name]) => `<button type="button" class="chip" data-filter="${key}">${esc(name)}</button>`)
+  /* 분류 버튼: MAT_CATS 순서 ('전체' 없이, 처음에는 첫 번째 분류가 선택된다) */
+  chips.innerHTML = MAT_CATS
+    .map((c) => `<button type="button" class="chip" data-filter="${c.key}">${esc(catName(c))}</button>`)
     .join('');
 
   /* 정규 프로젝트를 고르면 그 아래에 학기·도메인 필터가 뜬다 (값은 자료에 있는 것만) */
@@ -1169,27 +1171,16 @@ async function initArchive() {
       + row('domain', IS_EN ? 'Domain' : '도메인', domains.map((v) => [v, domainName(v)]));
   }
 
-  let current = 'all';
+  let current = MAT_CATS[0].key;
   function render(type) {
     current = type;
     $$('.pdf-viewer', list).forEach(closePdf);   /* 다시 그리기 전에 열려 있던 PDF 를 정리 */
-    if (type === 'all') {
-      /* 전체: 분류 순서대로 묶어서 보여 준다 */
-      const groups = MAT_CATS.map((c) => [c, materials.filter((m) => m.type === c.key)])
-        .filter(([, items]) => items.length);
-      list.innerHTML = groups.length ? groups.map(([c, items]) => `
-        <section class="mat-group">
-          <h2 class="mat-group-title">${esc(catName(c))}<span>${items.length}</span></h2>
-          ${items.map(item).join('')}
-        </section>`).join('') : empty;
-    } else {
-      let items = materials.filter((m) => m.type === type);
-      if (type === 'project') {
-        items = items.filter((m) => (pick.term === 'all' || m.term === pick.term)
-          && (pick.domain === 'all' || m.domain === pick.domain));
-      }
-      list.innerHTML = items.length ? items.map(item).join('') : empty;
+    let items = materials.filter((m) => m.type === type);
+    if (type === 'project') {
+      items = items.filter((m) => (pick.term === 'all' || m.term === pick.term)
+        && (pick.domain === 'all' || m.domain === pick.domain));
     }
+    list.innerHTML = items.length ? items.map(item).join('') : empty;
 
     $$('.chip', chips).forEach((c) => {
       const on = c.dataset.filter === type;
@@ -1235,7 +1226,7 @@ async function initArchive() {
     });
   }
 
-  render('all');
+  render(current);
 }
 
 /* ------------------------------------------------------------
