@@ -893,14 +893,197 @@ function initSubTabs() {
 }
 
 /* ------------------------------------------------------------
-   ARCHIVE (archive.html)
+   ARCHIVE (archive.html) — 프로젝트 페이지
    ------------------------------------------------------------ */
+/* 분류: 이 순서대로 필터 버튼과 '전체'의 묶음이 놓인다 (key 는 DB materials.type 값) */
+const MAT_CATS = [
+  { key: 'project',     ko: '정규 프로젝트', en: 'Regular Projects' },
+  { key: 'competition', ko: '공모전',       en: 'Competitions' },
+  { key: 'study',       ko: '스터디',       en: 'Studies' },
+  { key: 'edu',         ko: '교육자료',     en: 'Lecture Materials' }
+];
+const catName = (c) => (IS_EN ? c.en : c.ko);
+
+/* 학기 표기: '2025-1' → 2025-1학기, '2025-여름' → 2025 여름방학 (형식이 다르면 그대로 보인다) */
+const TERM_RE = /^(\d{4})-(1|2|여름|겨울)$/;
+function termLabel(term) {
+  const m = TERM_RE.exec(term || '');
+  if (!m) return term || '';
+  const [, y, s] = m;
+  if (IS_EN) return `${y} ${{ '1': 'Spring', '여름': 'Summer', '2': 'Fall', '겨울': 'Winter' }[s]}`;
+  return s === '1' || s === '2' ? `${y}-${s}학기` : `${y} ${s}방학`;
+}
+/* 최신 학기가 위로 오게 하는 정렬 키 (1학기 → 여름 → 2학기 → 겨울 순, 학기가 없으면 맨 아래) */
+function termKey(term) {
+  const m = TERM_RE.exec(term || '');
+  return m ? Number(m[1]) * 10 + { '1': 1, '여름': 2, '2': 3, '겨울': 4 }[m[2]] : 0;
+}
+
+/* 정규 프로젝트 도메인: 이 순서를 먼저, 나머지는 가나다순, '기타'는 맨 뒤 */
+const DOMAIN_ORDER = ['금융', '마케팅', '사회', '스포츠', '의료', '환경'];
+const DOMAIN_EN = { '금융': 'Finance', '마케팅': 'Marketing', '사회': 'Society', '스포츠': 'Sports',
+                    '의료': 'Healthcare', '환경': 'Environment', '기타': 'Others' };
+const domainName = (d) => (IS_EN ? DOMAIN_EN[d] || d : d);
+function domainSort(a, b) {
+  const rank = (d) => (d === '기타' ? 999 : DOMAIN_ORDER.indexOf(d) + 1 || 500);
+  return rank(a) - rank(b) || a.localeCompare(b, 'ko');
+}
+
+/* ------------------------------------------------------------
+   PDF 뷰어 — 항목을 펼치면 PDF.js 로 페이지를 그린다
+   - 휴대폰 브라우저는 페이지 안에 PDF 를 잘 못 띄워서, 직접 그려 어디서나 같은 모양으로 보이게 한다
+   - 라이브러리는 처음 펼칠 때만 불러온다
+   - 화면 근처의 쪽만 그리고, 멀어진 쪽은 지워서 메모리를 아낀다
+   ------------------------------------------------------------ */
+const PDFJS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38';
+const PDF_TXT = IS_EN
+  ? { loading: 'Loading PDF…', error: 'Could not load the PDF.', open: 'Open in new tab', down: 'Download' }
+  : { loading: 'PDF를 불러오는 중…', error: 'PDF를 불러오지 못했습니다.', open: '새 창에서 보기', down: '다운로드' };
+
+let pdfjsLib = null;
+function loadPdfjs() {
+  if (!pdfjsLib) {
+    pdfjsLib = import(`${PDFJS}/legacy/build/pdf.min.mjs`).then((lib) => {
+      lib.GlobalWorkerOptions.workerSrc = `${PDFJS}/legacy/build/pdf.worker.min.mjs`;
+      return lib;
+    });
+    pdfjsLib.catch(() => { pdfjsLib = null; });   /* 실패하면 다음에 펼칠 때 다시 시도 */
+  }
+  return pdfjsLib;
+}
+
+function pdfViewerHTML(m) {
+  /* Supabase Storage 주소에 ?download= 를 붙이면 원래 파일 이름으로 내려받는다 */
+  const dl = `${m.file_url}${m.file_url.includes('?') ? '&' : '?'}download=${encodeURIComponent(m.file_name || '')}`;
+  return `
+    <div class="pdf-viewer" data-src="${esc(m.file_url)}" data-title="${esc(m.title)}">
+      <div class="pdf-bar">
+        <span class="pdf-status">${PDF_TXT.loading}</span>
+        <span class="pdf-links">
+          <a href="${esc(m.file_url)}" target="_blank" rel="noopener">${PDF_TXT.open}</a>
+          <a href="${esc(dl)}">${PDF_TXT.down}</a>
+        </span>
+      </div>
+      <div class="pdf-pages"></div>
+    </div>`;
+}
+
+async function openPdf(box) {
+  if (box._pdf) return;
+  const st = { off: false };
+  box._pdf = st;
+  const status = $('.pdf-status', box);
+  const pages = $('.pdf-pages', box);
+  try {
+    const lib = await loadPdfjs();
+    if (st.off) return;
+    st.task = lib.getDocument({
+      url: box.dataset.src,
+      cMapUrl: `${PDFJS}/cmaps/`, cMapPacked: true,
+      standardFontDataUrl: `${PDFJS}/standard_fonts/`,
+      disableAutoFetch: true, isEvalSupported: false
+    });
+    const doc = st.doc = await st.task.promise;
+    if (st.off) return;
+    const first = (await doc.getPage(1)).getViewport({ scale: 1 });
+    if (st.off) return;
+
+    const n = doc.numPages;
+    const title = esc(box.dataset.title);
+    pages.innerHTML = Array.from({ length: n }, (_, i) => `
+      <div class="pdf-page" data-page="${i + 1}" style="aspect-ratio:${first.width} / ${first.height}">
+        <canvas role="img" aria-label="${title} ${i + 1}${IS_EN ? '' : '쪽'}"></canvas>
+      </div>`).join('');
+
+    /* 지금 보고 있는 쪽 번호 (맨 아래까지 내리면 마지막 쪽) */
+    const count = () => {
+      const y = pages.scrollTop + pages.clientHeight / 4;
+      let cur = 1;
+      for (const el of pages.children) {
+        if (el.offsetTop > y) break;
+        cur = Number(el.dataset.page);
+      }
+      if (pages.scrollTop + pages.clientHeight >= pages.scrollHeight - 2) cur = n;
+      status.textContent = `${cur} / ${n}`;
+    };
+    count();
+    pages.addEventListener('scroll', () => {
+      if (st.raf) return;
+      st.raf = requestAnimationFrame(() => { st.raf = 0; count(); });
+    }, { passive: true });
+
+    st.io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        en.target._want = en.isIntersecting;
+        if (en.isIntersecting) drawPage(st, en.target);
+        else clearPage(en.target);
+      });
+    }, { root: pages, rootMargin: '100% 0px' });
+    $$('.pdf-page', pages).forEach((el) => st.io.observe(el));
+  } catch (err) {
+    if (st.off) return;
+    console.error('PDF 불러오기 실패', err);
+    status.textContent = PDF_TXT.error;
+    box.classList.add('is-error');
+  }
+}
+
+async function drawPage(st, el) {
+  if (st.off || el._busy || el._done) return;
+  el._busy = true;
+  let cancelled = false;
+  try {
+    const page = await st.doc.getPage(Number(el.dataset.page));
+    if (st.off || !el._want) return;
+    const base = page.getViewport({ scale: 1 });
+    el.style.aspectRatio = `${base.width} / ${base.height}`;
+    const width = el.clientWidth || 800;
+    const vp = page.getViewport({ scale: (width * Math.min(window.devicePixelRatio || 1, 2)) / base.width });
+    const canvas = el.firstElementChild;
+    canvas.width = Math.ceil(vp.width);
+    canvas.height = Math.ceil(vp.height);
+    el._task = page.render({ canvasContext: canvas.getContext('2d'), viewport: vp });
+    await el._task.promise;
+    el._done = true;
+  } catch (err) {
+    if (st.off) return;
+    if (err && err.name === 'RenderingCancelledException') cancelled = true;
+    else console.error('PDF 쪽 그리기 실패', err);
+  } finally {
+    el._busy = false;
+    el._task = null;
+    /* 그리던 중에 취소됐는데 다시 화면에 들어와 있으면 이어서 그린다 */
+    if (cancelled && !st.off && el._want) drawPage(st, el);
+  }
+}
+
+function clearPage(el) {
+  if (el._task) el._task.cancel();
+  if (!el._done) return;
+  const canvas = el.firstElementChild;
+  canvas.width = canvas.height = 0;
+  el._done = false;
+}
+
+function closePdf(box) {
+  const st = box._pdf;
+  if (!st) return;
+  st.off = true;
+  box._pdf = null;
+  if (st.io) st.io.disconnect();
+  if (st.raf) cancelAnimationFrame(st.raf);
+  const target = st.doc || st.task;
+  if (target) target.destroy();
+  const pages = $('.pdf-pages', box);
+  pages.replaceWith(pages.cloneNode(false));   /* 쪽과 스크롤 리스너를 함께 비운다 */
+  $('.pdf-status', box).textContent = PDF_TXT.loading;
+  box.classList.remove('is-error');
+}
+
 async function initArchive() {
   const list = $('#materialList');
   const chips = $('#materialFilters');
   if (!list || !chips) return;
-
-  const LABEL = { edu: t('교육자료'), project: t('프로젝트') };
 
   /* 자료 데이터: Supabase 우선, 없으면 하드코딩 폴백 */
   let materials = MATERIALS;
@@ -911,13 +1094,17 @@ async function initArchive() {
     if (error) console.error('자료 불러오기 실패', error);
     else if (data) materials = data.map((m) => ({
       type: m.type, title: m.title, desc: m.description || '',
-      author: m.author || '', date: m.mat_date || '',
+      author: m.author || '', date: m.mat_date || '', term: m.term || '', domain: m.domain || '',
       tags: m.tags || [], file_url: m.file_url, file_name: m.file_name,
       problem: m.problem || '', approach: m.approach || '',
       result: m.result || '', outputUrl: m.output_url || '',
       outputCaption: m.output_caption || ''
     }));
   }
+  /* 최신 학기가 위로 (같은 학기 안에서는 불러온 순서 그대로) */
+  materials = [...materials].sort((a, b) => termKey(b.term) - termKey(a.term));
+
+  const isPdf = (m) => /\.pdf$/i.test(m.file_name || '') || /\.pdf($|\?)/i.test(m.file_url || '');
 
   /* 값이 있는 항목만 블록으로 그린다 */
   const block = (label, text) => text
@@ -934,44 +1121,119 @@ async function initArchive() {
       </div>` : '';
     return [
       m.desc ? `<p class="mat-summary">${esc(m.desc)}</p>` : '',
+      m.file_url && isPdf(m) ? pdfViewerHTML(m) : '',
       block('Problem', m.problem),
       block('Approach', m.approach),
       block('Insight / Result', m.result),
       out,
       block('Members', m.author),
       (m.tags || []).length ? `<div class="tags">${m.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : '',
-      m.file_url ? `<a class="mat-file" href="${esc(m.file_url)}" target="_blank" rel="noopener">${t('자료 받기')}</a>` : ''
+      m.file_url && !isPdf(m) ? `<a class="mat-file" href="${esc(m.file_url)}" target="_blank" rel="noopener">${t('자료 받기')}</a>` : ''
     ].join('');
   };
 
-  function render(type) {
-    const items = type === 'all' ? materials : materials.filter((m) => m.type === type);
-    list.innerHTML = items.length ? items.map((m) => `
+  const item = (m) => {
+    const cat = MAT_CATS.find((c) => c.key === m.type);
+    const when = m.term ? termLabel(m.term) : m.date;
+    return `
       <details class="mat-item">
         <summary>
-          <span class="row-badge">${esc(LABEL[m.type])}</span>
+          <span class="row-badge">${esc(cat ? catName(cat) : m.type)}</span>
           <span class="mat-title">${esc(m.title)}</span>
-          ${m.date ? `<span class="mat-date">${esc(m.date)}</span>` : ''}
+          ${when ? `<span class="mat-date">${esc(when)}</span>` : ''}
         </summary>
         <div class="mat-body">${body(m)}</div>
-      </details>`).join('') : `<p class="empty">${t('해당 분류의 자료가 없습니다.')}</p>`;
+      </details>`;
+  };
+  const empty = `<p class="empty">${t('해당 분류의 자료가 없습니다.')}</p>`;
 
-    $$('.chip', chips).forEach((c) => {
-      c.classList.toggle('is-active', c.dataset.filter === type);
-    });
+  /* 분류 버튼: 전체 + MAT_CATS 순서 */
+  chips.innerHTML = [['all', t('전체')], ...MAT_CATS.map((c) => [c.key, catName(c)])]
+    .map(([key, name]) => `<button type="button" class="chip" data-filter="${key}">${esc(name)}</button>`)
+    .join('');
+
+  /* 정규 프로젝트를 고르면 그 아래에 학기·도메인 필터가 뜬다 (값은 자료에 있는 것만) */
+  const sub = $('#projectFilters');
+  const pick = { term: 'all', domain: 'all' };
+  if (sub) {
+    const projects = materials.filter((m) => m.type === 'project');
+    const terms = [...new Set(projects.map((m) => m.term).filter(Boolean))].sort((a, b) => termKey(b) - termKey(a));
+    const domains = [...new Set(projects.map((m) => m.domain).filter(Boolean))].sort(domainSort);
+    const row = (key, label, values) => (values.length ? `
+      <div class="subfilter" data-key="${key}">
+        <span class="subfilter-label">${label}</span>
+        ${[['all', t('전체')], ...values].map(([v, name]) =>
+          `<button type="button" class="chip chip--sm" data-value="${esc(v)}">${esc(name)}</button>`).join('')}
+      </div>` : '');
+    sub.innerHTML = row('term', IS_EN ? 'Semester' : '학기', terms.map((v) => [v, termLabel(v)]))
+      + row('domain', IS_EN ? 'Domain' : '도메인', domains.map((v) => [v, domainName(v)]));
   }
 
-  /* 한 번에 하나만 펼친다 */
+  let current = 'all';
+  function render(type) {
+    current = type;
+    $$('.pdf-viewer', list).forEach(closePdf);   /* 다시 그리기 전에 열려 있던 PDF 를 정리 */
+    if (type === 'all') {
+      /* 전체: 분류 순서대로 묶어서 보여 준다 */
+      const groups = MAT_CATS.map((c) => [c, materials.filter((m) => m.type === c.key)])
+        .filter(([, items]) => items.length);
+      list.innerHTML = groups.length ? groups.map(([c, items]) => `
+        <section class="mat-group">
+          <h2 class="mat-group-title">${esc(catName(c))}<span>${items.length}</span></h2>
+          ${items.map(item).join('')}
+        </section>`).join('') : empty;
+    } else {
+      let items = materials.filter((m) => m.type === type);
+      if (type === 'project') {
+        items = items.filter((m) => (pick.term === 'all' || m.term === pick.term)
+          && (pick.domain === 'all' || m.domain === pick.domain));
+      }
+      list.innerHTML = items.length ? items.map(item).join('') : empty;
+    }
+
+    $$('.chip', chips).forEach((c) => {
+      const on = c.dataset.filter === type;
+      c.classList.toggle('is-active', on);
+      c.setAttribute('aria-pressed', on);
+    });
+    if (sub) {
+      sub.hidden = type !== 'project' || !sub.children.length;
+      $$('.subfilter', sub).forEach((r) => $$('.chip', r).forEach((c) => {
+        const on = c.dataset.value === pick[r.dataset.key];
+        c.classList.toggle('is-active', on);
+        c.setAttribute('aria-pressed', on);
+      }));
+    }
+  }
+
+  /* 한 번에 하나만 펼치고, 펼친 항목의 PDF 를 그린다 (접으면 정리) */
   list.addEventListener('toggle', (e) => {
     const d = e.target;
-    if (d.tagName !== 'DETAILS' || !d.open) return;
+    if (d.tagName !== 'DETAILS') return;
+    const box = $('.pdf-viewer', d);
+    if (!d.open) {
+      if (box) closePdf(box);
+      return;
+    }
     $$('.mat-item[open]', list).forEach((o) => { if (o !== d) o.open = false; });
+    if (box) openPdf(box);
   }, true);
 
   chips.addEventListener('click', (e) => {
     const chip = e.target.closest('.chip');
-    if (chip) render(chip.dataset.filter);
+    if (!chip) return;
+    if (chip.dataset.filter !== current) { pick.term = 'all'; pick.domain = 'all'; }   /* 분류를 바꾸면 학기·도메인은 처음으로 */
+    render(chip.dataset.filter);
   });
+
+  if (sub) {
+    sub.addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+      pick[chip.closest('.subfilter').dataset.key] = chip.dataset.value;
+      render('project');
+    });
+  }
 
   render('all');
 }

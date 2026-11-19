@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="style.css?v=12">
 <link rel="stylesheet" href="admin.css?v=5">
 </head>
 <body class="admin-body">
@@ -47,7 +47,7 @@
 
   <nav class="admin-tabs">
     <button type="button" class="admin-tab is-active" data-tab="notices">공지사항</button>
-    <button type="button" class="admin-tab" data-tab="materials">자료실</button>
+    <button type="button" class="admin-tab" data-tab="materials">프로젝트</button>
     <button type="button" class="admin-tab" data-tab="faqs">FAQ</button>
     <button type="button" class="admin-tab" data-tab="settings">지원 버튼</button>
   </nav>
@@ -104,9 +104,23 @@
           <label class="field">
             <span>분류 *</span>
             <select id="materialType" required>
+              <option value="project">정규 프로젝트</option>
+              <option value="competition">공모전</option>
+              <option value="study">스터디</option>
               <option value="edu">교육자료</option>
-              <option value="project">프로젝트</option>
             </select>
+          </label>
+          <label class="field">
+            <span>학기 (예: 2026-1, 2026-여름, 2026-2, 2026-겨울)</span>
+            <input type="text" id="materialTerm" placeholder="2026-1" pattern="\d{4}-(1|2|여름|겨울)" title="연도-학기 형식으로 적어 주세요. 예: 2026-1, 2026-여름, 2026-2, 2026-겨울">
+          </label>
+          <label class="field">
+            <span>도메인 (정규 프로젝트 필터에 쓰임, 예: 금융, 마케팅, 사회)</span>
+            <input type="text" id="materialDomain" list="domainOptions" placeholder="금융">
+            <datalist id="domainOptions">
+              <option value="금융"><option value="마케팅"><option value="사회"><option value="스포츠">
+              <option value="의료"><option value="환경"><option value="기타">
+            </datalist>
           </label>
           <label class="field">
             <span>제목 *</span>
@@ -153,8 +167,8 @@
             <input type="text" id="materialTags" placeholder="예: R, Textmining, 입문">
           </label>
           <label class="field">
-            <span>파일</span>
-            <input type="file" id="materialFile">
+            <span>파일 (PDF만)</span>
+            <input type="file" id="materialFile" accept="application/pdf,.pdf">
             <small class="file-current" id="materialFileCurrent"></small>
           </label>
           <div class="form-actions">
@@ -241,6 +255,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js?v=2"></script>
-<script src="admin.js?v=3"></script>
+<script src="admin.js?v=4"></script>
 </body>
 </html>

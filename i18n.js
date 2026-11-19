@@ -23,7 +23,7 @@ const EN = {
   /* ---------- 페이지 제목 ---------- */
   '비어플 B.a.f | 동국대학교 빅데이터 학회': 'B.a.f | Big Data Society at Dongguk University',
   '학회소개 | 비어플 B.a.f': 'About | B.a.f',
-  '자료실 | 비어플 B.a.f': 'Archive | B.a.f',
+  '프로젝트 | 비어플 B.a.f': 'Projects | B.a.f',
   '전체공지 | 비어플 B.a.f': 'Notice | B.a.f',
   '문의하기 | 비어플 B.a.f': 'Contact | B.a.f',
 
@@ -40,7 +40,6 @@ const EN = {
   '수상 내역': 'Awards',
   '설립 및 연혁': 'Founding & History',
   '주요활동': 'Activities',
-  '자료실': 'Archive',
   '전체공지': 'Notice',
   '공지사항': 'Notices',
   '지원 안내': 'Apply',
@@ -220,12 +219,12 @@ const EN = {
   '비어플 창립 — 동국대학교 통계학과 학부생 12인':
     'B.a.f founded by 12 undergraduates in the Department of Statistics, Dongguk University',
 
-  /* ---------- 자료실 ---------- */
-  'archive.title': 'Resources & Projects',
-  'B.a.f의 <strong>교육자료</strong>와 <strong>프로젝트 결과물</strong>을 기록하고 축적합니다.<br> 역대 교육자료와 프로젝트를 확인할 수 있습니다.':
-    'A growing collection of B.a.f’s <strong>study materials</strong> and <strong>project outputs</strong>.<br> All materials are written in Korean.',
+  /* ---------- 프로젝트 (archive.html) — 분류 이름은 script.js 의 MAT_CATS ---------- */
+  'archive.title': 'Projects & Resources',
+  'B.a.f가 진행한 <strong>정규 프로젝트</strong>, <strong>공모전</strong>, <strong>스터디</strong>의 발표 자료와 <strong>교육자료</strong>를 모았습니다.<br> 항목을 펼치면 발표 자료를 바로 볼 수 있습니다.':
+    'Slides from B.a.f’s <strong>regular projects</strong>, <strong>competitions</strong> and <strong>studies</strong>, plus our <strong>lecture materials</strong>.<br> Open an item to view its slides. All materials are written in Korean.',
+  '분류': 'Categories',
   '전체': 'All',
-  '교육자료': 'Study Materials',
   '프로젝트': 'Projects',
   '자료 받기': 'Download',
   '해당 분류의 자료가 없습니다.': 'No materials in this category.',

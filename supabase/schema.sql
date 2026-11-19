@@ -17,7 +17,7 @@ create table if not exists public.notices (
 -- ----- 자료실 테이블 -----
 create table if not exists public.materials (
   id           uuid primary key default gen_random_uuid(),
-  type         text not null check (type in ('edu','project')),  -- 교육자료 / 프로젝트
+  type         text not null check (type in ('project','competition','study','edu')),  -- 학기 프로젝트 / 공모전 / 스터디 / 교육자료
   title        text not null,
   description  text,
   author       text,
@@ -49,6 +49,14 @@ alter table public.materials add column if not exists approach       text;  -- �
 alter table public.materials add column if not exists result         text;  -- 어떤 결과·인사이트를 얻었는지
 alter table public.materials add column if not exists output_url     text;  -- 대표 그래프·시각화 이미지 URL
 alter table public.materials add column if not exists output_caption text;  -- 결과물 설명
+-- 학기 (예: 2025-1, 2025-여름, 2025-2, 2025-겨울) — 프로젝트 페이지에서 날짜 대신 보이고 정렬 기준이 된다
+alter table public.materials add column if not exists term text;
+-- 도메인 (예: 금융, 마케팅, 사회) — 정규 프로젝트의 도메인 필터에 쓰인다
+alter table public.materials add column if not exists domain text;
+-- 분류 확장: 학기 프로젝트 / 공모전 / 스터디 / 교육자료 (기존 테이블의 제약도 바꾼다)
+alter table public.materials drop constraint if exists materials_type_check;
+alter table public.materials add constraint materials_type_check
+  check (type in ('project','competition','study','edu'));
 
 -- ============================================================
 -- settings — 사이트 설정 (지원 버튼 문구·폼 주소 등)

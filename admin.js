@@ -194,7 +194,7 @@ async function deleteNotice(n) {
    ============================================================ */
 const materialForm = $('#materialForm');
 const materialError = $('#materialError');
-const LABEL = { edu: '교육자료', project: '프로젝트' };
+const LABEL = { project: '정규 프로젝트', competition: '공모전', study: '스터디', edu: '교육자료' };
 
 async function loadMaterials() {
   const list = $('#materialList');
@@ -229,7 +229,7 @@ function materialRow(m) {
 
   const sub = document.createElement('div');
   sub.className = 'admin-row-sub';
-  const bits = [m.author, m.mat_date, m.file_name].filter(Boolean);
+  const bits = [m.term, m.domain, m.author, m.mat_date, m.file_name].filter(Boolean);
   sub.textContent = bits.join(' · ');
   main.appendChild(sub);
 
@@ -254,6 +254,8 @@ function materialRow(m) {
 function fillMaterialForm(m) {
   $('#materialId').value = m.id;
   $('#materialType').value = m.type;
+  $('#materialTerm').value = m.term || '';
+  $('#materialDomain').value = m.domain || '';
   $('#materialTitle').value = m.title;
   $('#materialDesc').value = m.description || '';
   $('#materialAuthor').value = m.author || '';
@@ -298,8 +300,13 @@ materialForm.addEventListener('submit', async (e) => {
     /* 새 파일이 선택됐으면 Storage 업로드 */
     const file = $('#materialFile').files[0];
     if (file) {
-      const path = `${Date.now()}_${file.name}`;
-      const { error: upErr } = await sb.storage.from('materials').upload(path, file);
+      if (file.type !== 'application/pdf' && !/\.pdf$/i.test(file.name)) {
+        throw new Error('PDF 파일만 올릴 수 있습니다.');
+      }
+      /* Storage 는 한글·공백이 든 경로를 거부하므로 저장 이름은 숫자로 하고, 원래 이름은 file_name 에 남긴다 */
+      const path = `${Date.now()}.pdf`;
+      const { error: upErr } = await sb.storage.from('materials')
+        .upload(path, file, { contentType: 'application/pdf' });
       if (upErr) throw upErr;
       const { data: pub } = sb.storage.from('materials').getPublicUrl(path);
       fileUrl = pub.publicUrl;
@@ -311,6 +318,8 @@ materialForm.addEventListener('submit', async (e) => {
 
     const payload = {
       type: $('#materialType').value,
+      term: $('#materialTerm').value.trim() || null,
+      domain: $('#materialDomain').value.trim() || null,
       title: $('#materialTitle').value.trim(),
       description: $('#materialDesc').value.trim() || null,
       author: $('#materialAuthor').value.trim() || null,

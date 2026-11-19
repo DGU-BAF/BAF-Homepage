@@ -642,6 +642,20 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
 .chip:hover{border-color:var(--blue-3);color:var(--blue)}
 .chip.is-active{background:var(--blue);border-color:var(--blue);color:#fff}
 
+/* 정규 프로젝트의 학기·도메인 필터 (분류 버튼 바로 아래) */
+.subfilters{
+  display:grid;gap:10px;margin:-14px 0 26px;padding:14px 16px;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);
+}
+.subfilters[hidden]{display:none}
+.subfilter{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.subfilter-label{flex:0 0 52px;font-size:12.5px;font-weight:700;color:var(--muted)}
+.chip--sm{padding:5px 12px;font-size:12.5px}
+@media (max-width:620px){
+  .subfilters{margin-top:-6px;padding:12px}
+  .subfilter-label{flex-basis:100%}
+}
+
 .search{
   position:relative;display:flex;align-items:center;
   background:#fff;border:1px solid var(--line);border-radius:999px;padding:0 18px;
@@ -732,6 +746,51 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
   background:var(--tint);color:var(--blue);font-size:13.5px;font-weight:600;
 }
 .mat-file:hover{background:#dfeafa}
+
+/* 전체 보기: 분류별 묶음 */
+.mat-group{display:grid;gap:10px}
+.mat-group + .mat-group{margin-top:34px}
+.mat-group-title{
+  display:flex;align-items:baseline;gap:8px;padding:0 6px 4px;
+  font-size:18px;font-weight:700;color:var(--ink);
+}
+.mat-group-title span{font-size:13px;font-weight:600;color:var(--muted)}
+
+/* PDF 뷰어 (항목을 펼치면 script.js 가 쪽을 그린다) */
+.pdf-viewer{
+  margin-top:18px;border:1px solid var(--line);border-radius:var(--r-sm);
+  background:var(--bg-alt);overflow:hidden;
+}
+.pdf-bar{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;
+  padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--line);
+  font-size:13px;color:var(--muted);
+}
+.pdf-status{font-variant-numeric:tabular-nums}
+.pdf-links{display:flex;gap:16px}
+.pdf-links a{color:var(--blue);font-weight:600}
+.pdf-links a:hover{text-decoration:underline}
+.pdf-pages{
+  position:relative;padding:12px;
+  max-height:min(78vh,780px);overflow-y:auto;
+}
+.pdf-pages:empty{min-height:180px}
+/* 쪽 상자 높이는 aspect-ratio 로만 정하고, 그림은 그 위에 겹친다 (그리기 전·지운 뒤에도 자리가 그대로) */
+.pdf-page{position:relative;background:#fff;border-radius:6px;box-shadow:var(--shadow-sm);overflow:hidden}
+.pdf-page + .pdf-page{margin-top:10px}
+.pdf-page canvas{position:absolute;inset:0;width:100%;height:100%}
+.pdf-viewer.is-error .pdf-pages{display:none}
+
+@media (max-width:620px){
+  /* 휴대폰: 분류·학기를 윗줄에, 제목을 아랫줄에 */
+  .mat-item summary{flex-wrap:wrap;gap:8px 10px;padding:16px 18px}
+  .mat-item summary .row-badge{margin-right:auto}
+  .mat-item summary .mat-title{order:1;flex-basis:100%}
+  .mat-body{padding:2px 16px 20px}
+  .pdf-bar{padding:9px 12px}
+  .pdf-pages{padding:8px;max-height:72vh}
+  .pdf-page + .pdf-page{margin-top:8px}
+}
 
 /* ---------- 공지 아코디언 ---------- */
 .notice-item{
