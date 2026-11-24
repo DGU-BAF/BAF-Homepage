@@ -29,6 +29,16 @@ async function refreshAuthUI() {
   const dashView = $('#dashView');
 
   if (session) {
+    /* 운영진 명단(admins)에 없는 계정(공용 학회원 계정 등)은 들이지 않는다. 실제 쓰기 권한은 DB 정책이 막는다 */
+    const { data: isAdmin, error } = await sb.rpc('is_admin');
+    if (error || !isAdmin) {
+      dashView.hidden = true;
+      loginView.hidden = false;
+      if (error) { fail($('#loginError'), '운영진 확인 실패', error); return; }
+      await sb.auth.signOut({ scope: 'local' });   /* 이 브라우저만: 공용 계정의 다른 기기 로그인은 그대로 둔다 */
+      setError($('#loginError'), '운영진 계정이 아닙니다. 운영진 계정으로 로그인해 주세요.');
+      return;
+    }
     loginView.hidden = true;
     dashView.hidden = false;
     $('#userEmail').textContent = session.user.email;
@@ -42,7 +52,8 @@ async function refreshAuthUI() {
   }
 }
 
-sb.auth.onAuthStateChange(() => refreshAuthUI());
+/* 콜백 안에서 바로 Supabase 를 부르면 인증 잠금이 겹쳐 멈출 수 있어 한 박자 늦춘다 */
+sb.auth.onAuthStateChange(() => setTimeout(refreshAuthUI, 0));
 
 $('#loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();

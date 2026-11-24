@@ -782,6 +782,22 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
 .pdf-page canvas{position:absolute;inset:0;width:100%;height:100%}
 .pdf-viewer.is-error .pdf-pages{display:none}
 
+/* 학회원 잠금: 잠겨 있으면 비밀번호 칸만, 풀리면 뷰어만 보인다 */
+.pdf-viewer.is-locked .pdf-bar,
+.pdf-viewer.is-locked .pdf-pages{display:none}
+.pdf-viewer:not(.is-locked) .pdf-lock{display:none}
+.pdf-lock{padding:26px 20px;text-align:center;background:var(--surface)}
+.pdf-lock-msg{font-size:14px;color:var(--ink-2);margin:0 0 14px}
+.pdf-lock-row{display:flex;justify-content:center;gap:8px}
+.pdf-lock-row input{
+  width:min(260px,100%);padding:9px 16px;border:1px solid var(--line);border-radius:999px;
+  background:var(--bg-alt);color:var(--ink);font:inherit;font-size:14px;
+}
+.pdf-lock-row input:focus{outline:2px solid var(--blue);outline-offset:1px}
+.pdf-lock-error{margin:10px 0 0;font-size:13px;color:#c62828}
+.pdf-lock-btn{background:none;border:0;padding:0;font:inherit;font-weight:600;color:var(--muted);cursor:pointer}
+.pdf-lock-btn:hover{color:var(--ink-2);text-decoration:underline}
+
 @media (max-width:620px){
   /* 휴대폰: 윗줄 왼쪽에 분류, 오른쪽에 학기·도메인 / 아랫줄에 제목 */
   .mat-item summary{flex-wrap:wrap;gap:8px 10px;padding:16px 18px}
@@ -791,6 +807,9 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
   .pdf-bar{padding:9px 12px}
   .pdf-pages{padding:8px;max-height:72vh}
   .pdf-page + .pdf-page{margin-top:8px}
+  .pdf-lock{padding:20px 14px}
+  .pdf-lock-row{flex-direction:column;align-items:stretch}
+  .pdf-lock-row input{width:100%}
 }
 
 /* ---------- 공지 아코디언 ---------- */

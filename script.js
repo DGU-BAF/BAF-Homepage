@@ -940,8 +940,29 @@ function domainSort(a, b) {
    ------------------------------------------------------------ */
 const PDFJS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38';
 const PDF_TXT = IS_EN
-  ? { loading: 'Loading PDF…', error: 'Could not load the PDF.', open: 'Open in new tab', down: 'Download' }
-  : { loading: 'PDF를 불러오는 중…', error: 'PDF를 불러오지 못했습니다.', open: '새 창에서 보기', down: '다운로드' };
+  ? { loading: 'Loading PDF…', error: 'Could not load the PDF.', open: 'Open in new tab', down: 'Download',
+      lockMsg: 'Slides are for B.a.f members only.', lockPh: 'Member password', unlock: 'Unlock', lock: 'Lock',
+      wrong: 'Incorrect password.', many: 'Too many attempts. Please try again later.',
+      fail: 'Could not unlock. Please try again.', again: 'Please enter the password again.' }
+  : { loading: 'PDF를 불러오는 중…', error: 'PDF를 불러오지 못했습니다.', open: '새 창에서 보기', down: '다운로드',
+      lockMsg: '발표 자료는 학회원만 볼 수 있습니다.', lockPh: '학회원 비밀번호', unlock: '열기', lock: '잠그기',
+      wrong: '비밀번호가 맞지 않습니다.', many: '시도가 너무 많습니다. 잠시 후 다시 해 주세요.',
+      fail: '잠금을 풀지 못했습니다. 잠시 후 다시 시도해 주세요.', again: '다시 비밀번호를 입력해 주세요.' };
+
+/* 학회원 잠금
+   - PDF 는 비공개 저장소에 있다. 공용 학회원 계정(또는 운영진 계정)으로 로그인한 브라우저만
+     1시간짜리 임시 주소를 받아 연다. 실제로 막는 것은 Supabase 정책이고, 여기서는 화면만 바꾼다
+   - 잠그기는 이 브라우저만 로그아웃한다 (공용 계정이라 전체 로그아웃하면 다른 학회원도 잠긴다) */
+const MEMBER_EMAIL = 'member@dgubaf.com';
+const SIGN_TTL = 3600;   /* 임시 주소 유효시간(초) */
+let pdfUnlocked = false;
+
+/* Storage 주소에서 버킷 안 경로만 뽑는다 (admin.js storagePathFromUrl 과 같은 규칙) */
+function storagePath(url) {
+  const marker = '/materials/';
+  const i = (url || '').indexOf(marker);
+  return i === -1 ? '' : decodeURIComponent(url.slice(i + marker.length));
+}
 
 let pdfjsLib = null;
 function loadPdfjs() {
@@ -956,15 +977,25 @@ function loadPdfjs() {
 }
 
 function pdfViewerHTML(m) {
-  /* Supabase Storage 주소에 ?download= 를 붙이면 원래 파일 이름으로 내려받는다 */
-  const dl = `${m.file_url}${m.file_url.includes('?') ? '&' : '?'}download=${encodeURIComponent(m.file_name || '')}`;
+  /* 잠겨 있으면 비밀번호 칸만 보인다. 새 창·다운로드 주소는 펼칠 때 임시 주소로 채운다 */
   return `
-    <div class="pdf-viewer" data-src="${esc(m.file_url)}" data-title="${esc(m.title)}">
+    <div class="pdf-viewer${pdfUnlocked ? '' : ' is-locked'}" data-path="${esc(storagePath(m.file_url))}"
+         data-name="${esc(m.file_name || '')}" data-title="${esc(m.title)}">
+      <form class="pdf-lock">
+        <p class="pdf-lock-msg">${PDF_TXT.lockMsg}</p>
+        <div class="pdf-lock-row">
+          <input type="password" name="password" autocomplete="current-password" required
+                 placeholder="${PDF_TXT.lockPh}" aria-label="${PDF_TXT.lockPh}">
+          <button type="submit" class="btn btn--primary btn--sm">${PDF_TXT.unlock}</button>
+        </div>
+        <p class="pdf-lock-error" role="alert" hidden></p>
+      </form>
       <div class="pdf-bar">
         <span class="pdf-status">${PDF_TXT.loading}</span>
         <span class="pdf-links">
-          <a href="${esc(m.file_url)}" target="_blank" rel="noopener">${PDF_TXT.open}</a>
-          <a href="${esc(dl)}">${PDF_TXT.down}</a>
+          <a class="pdf-open" target="_blank" rel="noopener" hidden>${PDF_TXT.open}</a>
+          <a class="pdf-down" hidden>${PDF_TXT.down}</a>
+          <button type="button" class="pdf-lock-btn">${PDF_TXT.lock}</button>
         </span>
       </div>
       <div class="pdf-pages"></div>
@@ -972,16 +1003,37 @@ function pdfViewerHTML(m) {
 }
 
 async function openPdf(box) {
-  if (box._pdf) return;
+  if (box._pdf || box.classList.contains('is-locked')) return;
   const st = { off: false };
   box._pdf = st;
   const status = $('.pdf-status', box);
   const pages = $('.pdf-pages', box);
   try {
-    const lib = await loadPdfjs();
+    /* 임시 주소를 받는 동안 PDF.js 도 함께 불러온다 */
+    const [lib, view] = await Promise.all([
+      loadPdfjs(),
+      window.sb.storage.from('materials').createSignedUrl(box.dataset.path, SIGN_TTL)
+    ]);
     if (st.off) return;
+    if (view.error) {
+      /* 로그인이 끊겼으면 잠금 칸으로 되돌리고, 로그인이 살아 있으면(파일이 없는 경우 등) 이 항목만 오류로 둔다 */
+      const { data: auth } = await window.sb.auth.getSession();
+      if (st.off) return;
+      if (!auth.session) {
+        await lockPdfs(PDF_TXT.again);
+        return;
+      }
+      throw view.error;
+    }
+    const url = view.data.signedUrl;
+    const open = $('.pdf-open', box);
+    const dl = $('.pdf-down', box);
+    open.href = url;
+    /* 내려받기 주소는 직접 만든다 (라이브러리의 download 옵션은 한글 파일 이름을 두 번 인코딩한다) */
+    dl.href = `${url}${url.includes('?') ? '&' : '?'}download=${encodeURIComponent(box.dataset.name)}`;
+    open.hidden = dl.hidden = false;
     st.task = lib.getDocument({
-      url: box.dataset.src,
+      url,
       cMapUrl: `${PDFJS}/cmaps/`, cMapPacked: true,
       standardFontDataUrl: `${PDFJS}/standard_fonts/`,
       disableAutoFetch: true, isEvalSupported: false
@@ -1081,6 +1133,43 @@ function closePdf(box) {
   pages.replaceWith(pages.cloneNode(false));   /* 쪽과 스크롤 리스너를 함께 비운다 */
   $('.pdf-status', box).textContent = PDF_TXT.loading;
   box.classList.remove('is-error');
+  $$('.pdf-open, .pdf-down', box).forEach((a) => { a.removeAttribute('href'); a.hidden = true; });
+}
+
+/* 학회원 비밀번호로 잠금을 푼다. 성공하면 페이지의 모든 PDF 가 풀리고, 펼쳐 둔 항목은 바로 그린다 */
+async function unlockPdfs(password) {
+  if (!window.sb) return { ok: false, msg: PDF_TXT.fail };
+  const { error } = await window.sb.auth.signInWithPassword({
+    email: MEMBER_EMAIL,
+    password: password.trim()   /* 단톡방에서 복사할 때 붙는 앞뒤 공백·줄바꿈 */
+  });
+  if (error) {
+    console.error('잠금 해제 실패', error);
+    if (error.status === 429) return { ok: false, msg: PDF_TXT.many };
+    if (error.status === 400) return { ok: false, msg: PDF_TXT.wrong };
+    return { ok: false, msg: PDF_TXT.fail };
+  }
+  pdfUnlocked = true;
+  $$('.pdf-lock').forEach((f) => f.reset());   /* 입력한 비밀번호를 화면에 남기지 않는다 */
+  $$('.pdf-viewer').forEach((b) => b.classList.remove('is-locked'));
+  $$('.mat-item[open] .pdf-viewer').forEach(openPdf);
+  return { ok: true };
+}
+
+/* 다시 잠근다 (msg 가 있으면 비밀번호 칸 아래에 보인다) */
+async function lockPdfs(msg = '') {
+  pdfUnlocked = false;
+  $$('.pdf-viewer').forEach((b) => {
+    closePdf(b);
+    b.classList.add('is-locked');
+    const err = $('.pdf-lock-error', b);
+    err.textContent = msg;
+    err.hidden = !msg;
+  });
+  if (window.sb) {
+    const { error } = await window.sb.auth.signOut({ scope: 'local' });
+    if (error) console.error('잠그기 실패', error);
+  }
 }
 
 async function initArchive() {
@@ -1103,6 +1192,9 @@ async function initArchive() {
       result: m.result || '', outputUrl: m.output_url || '',
       outputCaption: m.output_caption || ''
     }));
+    /* 이미 로그인한 브라우저(학회원·운영진)는 잠금 없이 연다 */
+    const { data: auth } = await window.sb.auth.getSession();
+    pdfUnlocked = !!auth.session;
   }
   /* 최신 학기가 위로 (같은 학기 안에서는 불러온 순서 그대로) */
   materials = [...materials].sort((a, b) => termKey(b.term) - termKey(a.term));
@@ -1215,6 +1307,26 @@ async function initArchive() {
     $$('.mat-item[open]', list).forEach((o) => { if (o !== d) o.open = false; });
     if (box) openPdf(box);
   }, true);
+
+  /* 학회원 비밀번호 칸과 잠그기 버튼 (목록을 다시 그려도 동작하도록 목록에 건다) */
+  list.addEventListener('submit', async (e) => {
+    const form = e.target.closest('.pdf-lock');
+    if (!form) return;
+    e.preventDefault();
+    const btn = $('button[type=submit]', form);
+    const err = $('.pdf-lock-error', form);
+    btn.disabled = true;
+    err.hidden = true;
+    const res = await unlockPdfs(form.elements.password.value);
+    btn.disabled = false;
+    if (!res.ok) {
+      err.textContent = res.msg;
+      err.hidden = false;
+    }
+  });
+  list.addEventListener('click', (e) => {
+    if (e.target.closest('.pdf-lock-btn')) lockPdfs();
+  });
 
   chips.addEventListener('click', (e) => {
     const chip = e.target.closest('.chip');

@@ -221,8 +221,8 @@ const EN = {
 
   /* ---------- 프로젝트 (archive.html) — 분류 이름은 script.js 의 MAT_CATS ---------- */
   'archive.title': 'Projects & Resources',
-  'B.a.f가 진행한 <strong>정규 프로젝트</strong>, <strong>공모전</strong>, <strong>스터디</strong>의 발표 자료와 <strong>교육자료</strong>를 모았습니다.<br> 항목을 펼치면 발표 자료를 바로 볼 수 있습니다.':
-    'Slides from B.a.f’s <strong>regular projects</strong>, <strong>competitions</strong> and <strong>studies</strong>, plus our <strong>lecture materials</strong>.<br> Open an item to view its slides. All materials are written in Korean.',
+  'B.a.f가 진행한 <strong>정규 프로젝트</strong>, <strong>공모전</strong>, <strong>스터디</strong>의 발표 자료와 <strong>교육자료</strong>를 모았습니다.<br> 항목을 펼치면 요약을 볼 수 있고, 발표 자료는 학회원만 볼 수 있습니다.':
+    'Slides from B.a.f’s <strong>regular projects</strong>, <strong>competitions</strong> and <strong>studies</strong>, plus our <strong>lecture materials</strong>.<br> Open an item to see its summary; the slides are for members only. All materials are written in Korean.',
   '분류': 'Categories',
   '전체': 'All',
   '프로젝트': 'Projects',
