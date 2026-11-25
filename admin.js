@@ -41,9 +41,13 @@ async function refreshAuthUI() {
       setError($('#loginError'), '운영진 계정이 아닙니다. 운영진 계정으로 로그인해 주세요.');
       return;
     }
+    /* 페이지를 열 때는 로그인 신호가 겹쳐 와서 이 함수가 두세 번 불린다.
+       이미 같은 계정으로 대시보드를 보여 주는 중이면 목록·설정을 다시 불러오지 않는다 */
+    const shown = !dashView.hidden && $('#userEmail').textContent === session.user.email;
     loginView.hidden = true;
     dashView.hidden = false;
     $('#userEmail').textContent = session.user.email;
+    if (shown) return;
     loadNotices();
     loadMaterials();
     loadFaqs();

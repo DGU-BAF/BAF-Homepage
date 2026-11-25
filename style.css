@@ -805,8 +805,10 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
 
 @media (max-width:620px){
   /* 휴대폰: 윗줄 왼쪽에 분류, 오른쪽에 학기·도메인 / 아랫줄에 제목 */
-  .mat-item summary{flex-wrap:wrap;gap:8px 10px;padding:16px 44px 16px 18px;position:relative}
+  .mat-item summary{flex-wrap:wrap;gap:8px;padding:16px 44px 16px 18px;position:relative}
   .mat-item summary > .row-badge{margin-right:auto}
+  /* 학기·도메인 배지는 글자 폭만큼만 — 폭 360px 휴대폰에서도 분류 배지와 한 줄에 놓이게 (넓히면 둘째 줄로 밀린다) */
+  .mat-meta .row-badge{min-width:0;padding:5px 9px}
   /* 펼침 화살표는 줄바꿈에 끼지 않게 오른쪽 위에 고정한다 */
   .mat-item summary::after{position:absolute;right:20px;top:25px}
   html[lang="en"] .mat-item .row-badge{min-width:0}

@@ -234,6 +234,8 @@ const EN = {
   'notice.title': 'News & Notices',
   '공지 검색': 'Search notices',
   '공지 페이지': 'Notice pages',
+  '이전 페이지': 'Previous page',
+  '다음 페이지': 'Next page',
   '검색 결과가 없습니다.': 'No results found.',
   '자주 묻는 질문': 'Frequently Asked Questions',
   '원하시는 답변이 없다면 <a href="contact.html" style="color:var(--blue);text-decoration:underline">1:1 문의하기</a>를 이용해 보세요.':

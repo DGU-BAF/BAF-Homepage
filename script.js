@@ -290,6 +290,8 @@ const { lang: LANG, isEn: IS_EN, t } = window.I18N || { lang: 'kor', isEn: false
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => (
   { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
 ));
+/* 관리자 페이지에서 저장한 주소는 http(s) 로 시작할 때만 링크로 쓴다 (javascript: 같은 주소가 들어와도 눌러서 실행되지 않게) */
+const safeUrl = (u) => (/^https?:\/\//i.test(u || '') ? u : '');
 
 /* 1 → 1st, 2 → 2nd, 11 → 11th (영어 기수 표기) */
 const ordinal = (n) => {
@@ -446,7 +448,7 @@ async function initApply() {
       if (res.ok) {
         for (const { key, value } of await res.json()) {
           if (key === 'apply_label' && value) cfg.label = value;
-          if (key === 'apply_url') cfg.url = value || '';
+          if (key === 'apply_url') cfg.url = safeUrl(value);
         }
         loaded = true;
       }
@@ -893,12 +895,21 @@ function initSubTabs() {
     .map((a) => document.getElementById(a.getAttribute('href').slice(1)))
     .filter(Boolean);
   if (!sections.length || !('IntersectionObserver' in window)) return;
+  const scroller = $('.subtabs-scroll', bar);
 
   const io = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (!entry.isIntersecting) return;
       links.forEach((a) => {
-        a.classList.toggle('is-active', a.getAttribute('href') === `#${entry.target.id}`);
+        const on = a.getAttribute('href') === `#${entry.target.id}`;
+        a.classList.toggle('is-active', on);
+        /* 휴대폰에서는 탭이 옆으로 넘친다. 지금 보는 섹션의 탭이 가려지지 않게 막대 안에서 가운데로 옮긴다 */
+        if (on && scroller) {
+          scroller.scrollTo({
+            left: a.offsetLeft - scroller.offsetLeft - (scroller.clientWidth - a.offsetWidth) / 2,
+            behavior: reduceMotion() ? 'auto' : 'smooth'
+          });
+        }
       });
     });
   }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
@@ -1239,7 +1250,7 @@ async function initArchive() {
       out,
       block('Members', m.author),
       (m.tags || []).length ? `<div class="tags">${m.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>` : '',
-      m.file_url && !isPdf(m) ? `<a class="mat-file" href="${esc(m.file_url)}" target="_blank" rel="noopener">${t('자료 받기')}</a>` : ''
+      !isPdf(m) && safeUrl(m.file_url) ? `<a class="mat-file" href="${esc(m.file_url)}" target="_blank" rel="noopener">${t('자료 받기')}</a>` : ''
     ].join('');
   };
 
@@ -1389,11 +1400,14 @@ async function initNotice() {
     else if (data) notices = data;
   }
 
-  /* 본문 속 링크는 눌러서 열 수 있게 한다 */
-  const linkify = (t) => esc(t).replace(
-    /https?:\/\/[^\s<]+[^\s<.,)]/g,
-    (u) => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`
-  );
+  /* 본문 속 링크는 눌러서 열 수 있게 한다
+     (주소를 먼저 떼어 낸 뒤 조각마다 이스케이프한다 — 주소 바로 뒤의 따옴표·꺾쇠가 주소에 딸려 들어가지 않게) */
+  const linkify = (text) => String(text)
+    .split(/(https?:\/\/[^\s<>"']+[^\s<>"'.,)])/)
+    .map((part, i) => (i % 2
+      ? `<a href="${esc(part)}" target="_blank" rel="noopener">${esc(part)}</a>`
+      : esc(part)))
+    .join('');
 
   const filtered = () => {
     const key = query.trim().toLowerCase();
@@ -1405,13 +1419,14 @@ async function initNotice() {
     if (!pager) return;
     const pages = Math.ceil(total / PER_PAGE);
     if (pages <= 1) { pager.innerHTML = ''; return; }
-    const btn = (p, label, cls, disabled) =>
-      `<button type="button" class="${cls}" data-goto="${p}"${disabled ? ' disabled' : ''}>${label}</button>`;
-    let html = btn(page - 1, '‹', 'pager-btn', page === 1);
+    /* attrs: 화살표 버튼의 읽어 줄 이름, 지금 페이지 표시 (화면 낭독기용) */
+    const btn = (p, label, cls, disabled, attrs = '') =>
+      `<button type="button" class="${cls}" data-goto="${p}"${attrs}${disabled ? ' disabled' : ''}>${label}</button>`;
+    let html = btn(page - 1, '‹', 'pager-btn', page === 1, ` aria-label="${t('이전 페이지')}"`);
     for (let i = 1; i <= pages; i++) {
-      html += btn(i, i, 'pager-num' + (i === page ? ' is-active' : ''), false);
+      html += btn(i, i, 'pager-num' + (i === page ? ' is-active' : ''), false, i === page ? ' aria-current="page"' : '');
     }
-    html += btn(page + 1, '›', 'pager-btn', page === pages);
+    html += btn(page + 1, '›', 'pager-btn', page === pages, ` aria-label="${t('다음 페이지')}"`);
     pager.innerHTML = html;
   }
 
