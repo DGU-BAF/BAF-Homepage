@@ -1,7 +1,8 @@
 /* ============================================================
    Supabase 클라이언트 초기화
-   - CDN UMD 로드가 선행되어야 함:
-     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+   - CDN UMD 로드가 선행되어야 함 (버전 고정 + integrity, admin/archive/notice.html 참고):
+     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.js"
+             integrity="sha384-…" crossorigin="anonymous"></script>
    ============================================================ */
 
 /* Supabase Settings > API 값 */

@@ -1,0 +1,13 @@
+# Cloudflare Pages 응답 헤더 (이 파일 자체는 공개되지 않는다)
+# - Strict-Transport-Security: 한 번 들어온 브라우저는 1년간 항상 https 로만 접속한다
+# - object-src / base-uri: 플러그인 삽입과 <base> 태그 바꿔치기를 막는다 (스크립트 출처는 제한하지 않는다)
+# - 관리자 페이지만 다른 사이트가 액자(iframe)로 띄우지 못하게 한다 (클릭재킹 방지).
+#   공개 페이지는 노션 등에 임베드될 수 있어 막지 않는다.
+/*
+  Strict-Transport-Security: max-age=31536000
+  Content-Security-Policy: object-src 'none'; base-uri 'self'
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+
+/admin*
+  X-Frame-Options: DENY
+  Content-Security-Policy: frame-ancestors 'none'
