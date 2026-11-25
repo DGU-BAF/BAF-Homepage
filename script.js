@@ -335,20 +335,29 @@ function initNav() {
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
 
-  /* 모바일 토글 */
-  if (toggle) {
-    toggle.addEventListener('click', () => {
-      const open = document.documentElement.classList.toggle('nav-open');
+  /* 모바일 메뉴 (style.css 의 max-width:960px 와 같은 기준) */
+  const mobile = window.matchMedia('(max-width:960px)');
+  const setMenu = (open) => {
+    document.documentElement.classList.toggle('nav-open', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+    if (toggle) {
       toggle.setAttribute('aria-expanded', String(open));
       toggle.setAttribute('aria-label', t(open ? '메뉴 닫기' : '메뉴 열기'));
-      document.body.style.overflow = open ? 'hidden' : '';
-    });
+    }
+  };
+  const closeMenu = () => {
+    if (document.documentElement.classList.contains('nav-open')) setMenu(false);
+  };
+  if (toggle) {
+    toggle.addEventListener('click', () => setMenu(!document.documentElement.classList.contains('nav-open')));
   }
+  /* 메뉴를 연 채 창을 넓히면(태블릿 가로 전환 등) 토글 버튼이 사라지므로 닫아 둔다 */
+  mobile.addEventListener('change', () => { if (!mobile.matches) closeMenu(); });
 
   /* 모바일에서 드롭다운은 탭으로 펼침 */
   $$('.nav-item.has-sub > .nav-link').forEach((link) => {
     link.addEventListener('click', (e) => {
-      if (window.innerWidth > 860) return;
+      if (!mobile.matches) return;
       e.preventDefault();
       link.parentElement.classList.toggle('is-open');
     });
@@ -356,20 +365,11 @@ function initNav() {
 
   /* 메뉴 내 링크 클릭 시 닫기 */
   $$('.nav-sub a, .nav-item:not(.has-sub) > .nav-link').forEach((a) => {
-    a.addEventListener('click', () => {
-      if (!document.documentElement.classList.contains('nav-open')) return;
-      document.documentElement.classList.remove('nav-open');
-      document.body.style.overflow = '';
-      if (toggle) toggle.setAttribute('aria-expanded', 'false');
-    });
+    a.addEventListener('click', closeMenu);
   });
 
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && document.documentElement.classList.contains('nav-open')) {
-      document.documentElement.classList.remove('nav-open');
-      document.body.style.overflow = '';
-      if (toggle) toggle.setAttribute('aria-expanded', 'false');
-    }
+    if (e.key === 'Escape') closeMenu();
   });
 }
 
@@ -436,6 +436,7 @@ async function initApply() {
 
   /* 관리자 페이지에서 저장한 설정을 읽어온다 (실패하면 기본값 유지) */
   const cfg = { ...APPLY };
+  let loaded = false;
   if (window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
     try {
       const res = await fetch(
@@ -447,12 +448,14 @@ async function initApply() {
           if (key === 'apply_label' && value) cfg.label = value;
           if (key === 'apply_url') cfg.url = value || '';
         }
+        loaded = true;
       }
     } catch (e) { /* 네트워크 실패 시 기본값 유지 */ }
   }
 
-  /* 버튼 문구는 관리자가 한국어로 입력하므로 영어에선 상태에 맞는 고정 문구를 쓴다 */
-  if (IS_EN) cfg.label = cfg.url ? 'Apply Now' : 'Applications Closed';
+  /* 버튼 문구는 관리자가 한국어로 입력하므로 영어에선 상태에 맞는 고정 문구를 쓴다
+     (설정을 못 읽었으면 마감 여부를 모르니 한국어처럼 기본 문구를 둔다) */
+  if (IS_EN) cfg.label = !loaded ? t(APPLY.label) : cfg.url ? 'Apply Now' : 'Applications Closed';
 
   /* 폼 주소가 없으면 회색 비활성 버튼 그대로 둔다 */
   if (!cfg.url) {
@@ -527,13 +530,15 @@ function initHero() {
 
   function resize() {
     const rect = canvas.getBoundingClientRect();
+    /* 휴대폰에서 주소창이 접히며 높이만 바뀔 때는 점을 다시 뿌리지 않는다 (화면이 튀지 않게) */
+    const reseed = rect.width !== w || !nodes.length;
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     w = rect.width;
     h = rect.height;
     canvas.width = Math.round(w * dpr);
     canvas.height = Math.round(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    seed();
+    if (reseed) seed();
   }
 
   function draw() {
@@ -642,16 +647,19 @@ function initHero() {
   });
   hero.addEventListener('pointerleave', () => { pointer.active = false; });
 
-  /* 화면 밖이면 루프 중단 */
+  /* 화면 밖이면 루프 중단 (탭으로 돌아왔을 때도 히어로가 보일 때만 다시 돈다) */
+  let inView = true;
   if ('IntersectionObserver' in window) {
     new IntersectionObserver((entries) => {
-      entries[0].isIntersecting ? start() : stop();
+      inView = entries[0].isIntersecting;
+      inView ? start() : stop();
     }, { threshold: 0 }).observe(canvas);
   } else {
     start();
   }
   document.addEventListener('visibilitychange', () => {
-    document.hidden ? stop() : start();
+    if (document.hidden) stop();
+    else if (inView) start();
   });
 }
 
@@ -690,10 +698,16 @@ function initHeroType() {
   const play = () => { if (!timer) tick(); };
 
   /* 탭이 가려져 있거나 히어로가 화면 밖이면 멈춘다 */
-  document.addEventListener('visibilitychange', () => (document.hidden ? stop() : play()));
+  let inView = true;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stop();
+    else if (inView) play();
+  });
   if ('IntersectionObserver' in window) {
-    new IntersectionObserver((en) => (en[0].isIntersecting ? play() : stop()),
-      { threshold: 0 }).observe(el);
+    new IntersectionObserver((en) => {
+      inView = en[0].isIntersecting;
+      inView ? play() : stop();
+    }, { threshold: 0 }).observe(el);
   } else {
     play();
   }
@@ -961,7 +975,9 @@ let pdfUnlocked = false;
 function storagePath(url) {
   const marker = '/materials/';
   const i = (url || '').indexOf(marker);
-  return i === -1 ? '' : decodeURIComponent(url.slice(i + marker.length));
+  if (i === -1) return '';
+  const path = url.slice(i + marker.length);
+  try { return decodeURIComponent(path); } catch (e) { return path; }   /* % 가 섞인 주소에도 목록이 멈추지 않게 */
 }
 
 let pdfjsLib = null;
@@ -1304,7 +1320,7 @@ async function initArchive() {
       if (box) closePdf(box);
       return;
     }
-    $$('.mat-item[open]', list).forEach((o) => { if (o !== d) o.open = false; });
+    keepInPlace(d, () => $$('.mat-item[open]', list).forEach((o) => { if (o !== d) o.open = false; }));
     if (box) openPdf(box);
   }, true);
 
@@ -1438,6 +1454,8 @@ async function initNotice() {
     });
   }
 
+  /* 불러오는 동안 검색창에 입력했거나 브라우저가 이전 입력을 되살렸으면 그 검색어로 시작한다 */
+  if (input) query = input.value;
   render();
 }
 
@@ -1481,9 +1499,24 @@ function singleOpenDetails(box) {
   box.addEventListener('toggle', (e) => {
     const t = e.target;
     if (t.tagName === 'DETAILS' && t.open) {
-      box.querySelectorAll('details[open]').forEach((d) => { if (d !== t) d.open = false; });
+      keepInPlace(t, () => box.querySelectorAll('details[open]').forEach((d) => {
+        if (d === t) return;
+        /* 접히는 애니메이션이 있으면 높이가 천천히 줄어 위치를 맞출 수 없으니, 다른 항목은 바로 접는다 */
+        d.classList.add('no-anim');
+        d.open = false;
+        requestAnimationFrame(() => d.classList.remove('no-anim'));
+      }));
     }
   }, true);
+}
+
+/* fn 이 위쪽 항목을 접어도 el 이 화면에서 같은 자리에 머물게 스크롤을 맞춘다
+   (긴 항목을 열어 둔 채 아래 항목을 누르면 누른 항목이 화면 위로 밀려 올라가던 문제) */
+function keepInPlace(el, fn) {
+  const y = el.getBoundingClientRect().top;
+  fn();
+  const dy = el.getBoundingClientRect().top - y;
+  if (dy) window.scrollBy({ top: dy, behavior: 'instant' });
 }
 
 /* ------------------------------------------------------------
@@ -1501,21 +1534,29 @@ function initFooterAccordion() {
   top.insertBefore(wrap, cols[0]);
   cols.forEach((c) => wrap.appendChild(c));
 
+  /* 접히는 건 휴대폰(style.css 의 max-width:620px)에서만 — 데스크톱에선 버튼 역할을 붙이지 않는다 */
+  const mobile = window.matchMedia('(max-width:620px)');
+  const syncRoles = () => cols.forEach((col) => {
+    const h = col.querySelector('h4');
+    if (mobile.matches) {
+      h.setAttribute('role', 'button');
+      h.setAttribute('tabindex', '0');
+      h.setAttribute('aria-expanded', String(col.classList.contains('is-open')));
+    } else {
+      ['role', 'tabindex', 'aria-expanded'].forEach((a) => h.removeAttribute(a));
+    }
+  });
+  syncRoles();
+  mobile.addEventListener('change', syncRoles);
+
   cols.forEach((col) => {
     const h = col.querySelector('h4');
-    h.setAttribute('role', 'button');
-    h.setAttribute('tabindex', '0');
-    h.setAttribute('aria-expanded', 'false');
     const toggle = () => {
+      if (!mobile.matches) return;
       const willOpen = !col.classList.contains('is-open');
-      cols.forEach((c) => {
-        c.classList.remove('is-open');
-        c.querySelector('h4').setAttribute('aria-expanded', 'false');
-      });
-      if (willOpen) {
-        col.classList.add('is-open');
-        h.setAttribute('aria-expanded', 'true');
-      }
+      cols.forEach((c) => c.classList.remove('is-open'));
+      if (willOpen) col.classList.add('is-open');
+      syncRoles();
     };
     h.addEventListener('click', toggle);
     h.addEventListener('keydown', (e) => {

@@ -47,6 +47,10 @@
   font-size:15px;
   transition:border-color .2s var(--ease),box-shadow .2s var(--ease);
 }
+/* 터치 기기: 16px 보다 작은 입력칸은 iOS 사파리가 누를 때 화면을 확대한다 */
+@media (pointer:coarse){
+  .field input,.field textarea,.field select{font-size:16px}
+}
 .field input:focus,
 .field textarea:focus,
 .field select:focus{
@@ -84,7 +88,7 @@
 .user-email{font-size:13px;color:var(--muted)}
 
 /* ---------- 탭 ---------- */
-.admin-tabs{display:flex;gap:8px;margin-bottom:20px}
+.admin-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
 .admin-tab{
   padding:10px 22px;border-radius:999px;
   font-size:15px;font-weight:600;color:var(--ink-2);

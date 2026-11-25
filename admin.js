@@ -32,6 +32,8 @@ async function refreshAuthUI() {
     /* 운영진 명단(admins)에 없는 계정(공용 학회원 계정 등)은 들이지 않는다. 실제 쓰기 권한은 DB 정책이 막는다 */
     const { data: isAdmin, error } = await sb.rpc('is_admin');
     if (error || !isAdmin) {
+      /* 확인 요청만 실패했고 이미 대시보드를 쓰는 중이면 그대로 둔다 (토큰 갱신 때 네트워크가 잠깐 끊긴 경우 등) */
+      if (error && !dashView.hidden) { console.error('운영진 확인 실패', error); return; }
       dashView.hidden = true;
       loginView.hidden = false;
       if (error) { fail($('#loginError'), '운영진 확인 실패', error); return; }
@@ -52,8 +54,21 @@ async function refreshAuthUI() {
   }
 }
 
-/* 콜백 안에서 바로 Supabase 를 부르면 인증 잠금이 겹쳐 멈출 수 있어 한 박자 늦춘다 */
-sb.auth.onAuthStateChange(() => setTimeout(refreshAuthUI, 0));
+/* 콜백 안에서 바로 Supabase 를 부르면 인증 잠금이 겹쳐 멈출 수 있어 한 박자 늦춘다.
+   탭으로 돌아올 때·토큰을 갱신할 때도 신호가 오는데, 같은 계정으로 대시보드를 쓰는 중이면 다시 그리지 않는다
+   (다시 그리면 지원 버튼 설정처럼 쓰던 입력이 지워진다) */
+sb.auth.onAuthStateChange((event, session) => {
+  if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session
+      && !$('#dashView').hidden && $('#userEmail').textContent === session.user.email) return;
+  setTimeout(refreshAuthUI, 0);
+});
+
+/* 미리보기(?preview=1)에서는 DB 에 쓰지 않는다 (같은 브라우저에 운영진 로그인이 남아 있어도) */
+function blockPreview(errEl) {
+  if (!PREVIEW) return false;
+  setError(errEl, '미리보기에서는 저장·삭제되지 않습니다.');
+  return true;
+}
 
 $('#loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -171,7 +186,10 @@ $('#noticeReset').addEventListener('click', resetNoticeForm);
 
 noticeForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+  if (blockPreview(noticeError)) return;
   setError(noticeError, '');
+  const btn = noticeForm.querySelector('button[type=submit]');
+  btn.disabled = true;   /* 두 번 눌러 같은 공지가 두 개 생기지 않게 */
   const id = $('#noticeId').value;
   const payload = {
     tag: $('#noticeTag').value.trim() || null,
@@ -180,23 +198,29 @@ noticeForm.addEventListener('submit', async (e) => {
     body: $('#noticeBody').value
   };
 
-  let error;
-  if (id) {
-    ({ error } = await sb.from('notices').update(payload).eq('id', id));
-  } else {
-    /* 새 항목은 맨 위로 오도록 현재 최대 sort_order + 10 */
-    payload.sort_order = await nextSortOrder('notices');
-    ({ error } = await sb.from('notices').insert(payload));
+  try {
+    let error;
+    if (id) {
+      ({ error } = await sb.from('notices').update(payload).eq('id', id));
+    } else {
+      /* 새 항목은 맨 위로 오도록 현재 최대 sort_order + 10 */
+      payload.sort_order = await nextSortOrder('notices');
+      ({ error } = await sb.from('notices').insert(payload));
+    }
+    if (error) { fail(noticeError, '저장 실패', error); return; }
+    resetNoticeForm();
+    loadNotices();
+  } finally {
+    btn.disabled = false;
   }
-  if (error) { fail(noticeError, '저장 실패', error); return; }
-  resetNoticeForm();
-  loadNotices();
 });
 
 async function deleteNotice(n) {
+  if (blockPreview(noticeError)) return;
   if (!confirm(`"${n.title}" 공지를 삭제할까요?`)) return;
   const { error } = await sb.from('notices').delete().eq('id', n.id);
   if (error) { fail(noticeError, '삭제 실패', error); return; }
+  if ($('#noticeId').value === n.id) resetNoticeForm();   /* 고치던 공지를 지웠으면 폼도 비운다 */
   loadNotices();
 }
 
@@ -209,8 +233,9 @@ const LABEL = { project: '정규 프로젝트', competition: '공모전', study:
 
 async function loadMaterials() {
   const list = $('#materialList');
+  /* 날짜 없는 자료는 맨 위로 — 날짜 없이 새로 올린 자료가 맨 아래로 가서 저장이 안 된 것처럼 보이지 않게 */
   const { data, error } = await sb.from('materials').select('*')
-    .order('mat_date', { ascending: false, nullsFirst: false })
+    .order('mat_date', { ascending: false, nullsFirst: true })
     .order('sort_order', { ascending: false });
   if (error) { fail(materialError, '자료 불러오기 실패', error); return; }
 
@@ -299,17 +324,39 @@ $('#materialReset').addEventListener('click', resetMaterialForm);
 
 materialForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+  if (blockPreview(materialError)) return;
   setError(materialError, '');
   const btn = $('#materialSubmit');
   btn.disabled = true;
 
-  try {
-    const id = $('#materialId').value;
-    let fileUrl = $('#materialFileUrl').value || null;
-    let fileName = $('#materialFileName').value || null;
+  /* 폼 값은 업로드를 기다리기 전에 모두 읽어 둔다
+     (업로드 중에 다른 자료의 '수정'을 눌러 폼이 바뀌어도 그 내용이 섞여 저장되지 않게) */
+  const id = $('#materialId').value;
+  const oldUrl = $('#materialFileUrl').value || null;
+  const file = $('#materialFile').files[0];
+  const tags = $('#materialTags').value
+    .split(',').map((t) => t.trim()).filter(Boolean);
+  const payload = {
+    type: $('#materialType').value,
+    term: $('#materialTerm').value.trim() || null,
+    domain: $('#materialDomain').value.trim() || null,
+    title: $('#materialTitle').value.trim(),
+    description: $('#materialDesc').value.trim() || null,
+    author: $('#materialAuthor').value.trim() || null,
+    problem: $('#materialProblem').value.trim() || null,
+    approach: $('#materialApproach').value.trim() || null,
+    result: $('#materialResult').value.trim() || null,
+    output_url: $('#materialOutputUrl').value.trim() || null,
+    output_caption: $('#materialOutputCaption').value.trim() || null,
+    mat_date: $('#materialDate').value.replace(/-/g, '.') || null,  /* 2017-09-29 → 2017.09.29 (표기 통일) */
+    tags,
+    file_url: oldUrl,
+    file_name: $('#materialFileName').value || null
+  };
+  let uploaded = null;   /* 이번에 올린 파일 경로 — 저장에 실패하면 지운다 */
 
+  try {
     /* 새 파일이 선택됐으면 Storage 업로드 */
-    const file = $('#materialFile').files[0];
     if (file) {
       if (file.type !== 'application/pdf' && !/\.pdf$/i.test(file.name)) {
         throw new Error('PDF 파일만 올릴 수 있습니다.');
@@ -319,31 +366,10 @@ materialForm.addEventListener('submit', async (e) => {
       const { error: upErr } = await sb.storage.from('materials')
         .upload(path, file, { contentType: 'application/pdf' });
       if (upErr) throw upErr;
-      const { data: pub } = sb.storage.from('materials').getPublicUrl(path);
-      fileUrl = pub.publicUrl;
-      fileName = file.name;
+      uploaded = path;
+      payload.file_url = sb.storage.from('materials').getPublicUrl(path).data.publicUrl;
+      payload.file_name = file.name;
     }
-
-    const tags = $('#materialTags').value
-      .split(',').map((t) => t.trim()).filter(Boolean);
-
-    const payload = {
-      type: $('#materialType').value,
-      term: $('#materialTerm').value.trim() || null,
-      domain: $('#materialDomain').value.trim() || null,
-      title: $('#materialTitle').value.trim(),
-      description: $('#materialDesc').value.trim() || null,
-      author: $('#materialAuthor').value.trim() || null,
-      problem: $('#materialProblem').value.trim() || null,
-      approach: $('#materialApproach').value.trim() || null,
-      result: $('#materialResult').value.trim() || null,
-      output_url: $('#materialOutputUrl').value.trim() || null,
-      output_caption: $('#materialOutputCaption').value.trim() || null,
-      mat_date: $('#materialDate').value.replace(/-/g, '.') || null,  /* 2017-09-29 → 2017.09.29 (표기 통일) */
-      tags,
-      file_url: fileUrl,
-      file_name: fileName
-    };
 
     let error;
     if (id) {
@@ -353,9 +379,19 @@ materialForm.addEventListener('submit', async (e) => {
       ({ error } = await sb.from('materials').insert(payload));
     }
     if (error) throw error;
-    resetMaterialForm();
+
+    /* 파일을 바꿨으면 예전 파일은 지운다 (남겨 두면 학회원이 예전 파일을 계속 열 수 있다) */
+    const oldPath = uploaded && oldUrl ? storagePathFromUrl(oldUrl) : null;
+    uploaded = null;
+    if (oldPath) {
+      const { error: rmErr } = await sb.storage.from('materials').remove([oldPath]);
+      if (rmErr) console.error('예전 파일 삭제 실패', rmErr);
+    }
+    /* 저장하는 동안 다른 자료를 열었으면 그 폼은 건드리지 않는다 */
+    if ($('#materialId').value === id) resetMaterialForm();
     loadMaterials();
   } catch (err) {
+    if (uploaded) await sb.storage.from('materials').remove([uploaded]);   /* 저장 실패 → 방금 올린 파일 정리 */
     fail(materialError, '저장 실패', err);
   } finally {
     btn.disabled = false;
@@ -363,25 +399,27 @@ materialForm.addEventListener('submit', async (e) => {
 });
 
 async function deleteMaterial(m) {
+  if (blockPreview(materialError)) return;
   if (!confirm(`"${m.title}" 자료를 삭제할까요?`)) return;
-  /* 스토리지 파일도 함께 제거 */
-  if (m.file_url) {
-    const path = storagePathFromUrl(m.file_url);
-    if (path) {
-      const { error: rmErr } = await sb.storage.from('materials').remove([path]);
-      if (rmErr) console.error('파일 삭제 실패', rmErr);
-    }
-  }
   const { error } = await sb.from('materials').delete().eq('id', m.id);
   if (error) { fail(materialError, '삭제 실패', error); return; }
+  if ($('#materialId').value === m.id) resetMaterialForm();   /* 고치던 자료를 지웠으면 폼도 비운다 */
+  /* 스토리지 파일은 자료를 지운 뒤에 지운다 (반대 순서면 자료 삭제가 실패했을 때 파일만 사라진다) */
+  const path = m.file_url ? storagePathFromUrl(m.file_url) : null;
+  if (path) {
+    const { error: rmErr } = await sb.storage.from('materials').remove([path]);
+    if (rmErr) fail(materialError, '자료는 지웠지만 파일 삭제 실패', rmErr);
+  }
   loadMaterials();
 }
 
-/* public URL 에서 버킷 내 경로만 추출 */
+/* public URL 에서 버킷 내 경로만 추출 (script.js storagePath 와 같은 규칙) */
 function storagePathFromUrl(url) {
   const marker = '/materials/';
   const i = url.indexOf(marker);
-  return i === -1 ? null : decodeURIComponent(url.slice(i + marker.length));
+  if (i === -1) return null;
+  const path = url.slice(i + marker.length);
+  try { return decodeURIComponent(path); } catch (e) { return path; }
 }
 
 /* ============================================================
@@ -453,28 +491,37 @@ if (faqForm) $('#faqReset').addEventListener('click', resetFaqForm);
 
 if (faqForm) faqForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+  if (blockPreview(faqError)) return;
   setError(faqError, '');
+  const btn = faqForm.querySelector('button[type=submit]');
+  btn.disabled = true;   /* 두 번 눌러 같은 FAQ 가 두 개 생기지 않게 */
   const id = $('#faqId').value;
   const payload = {
     question: $('#faqQuestion').value.trim(),
     answer: $('#faqAnswer').value.trim()
   };
-  let error;
-  if (id) {
-    ({ error } = await sb.from('faqs').update(payload).eq('id', id));
-  } else {
-    payload.sort_order = await nextSortOrder('faqs');
-    ({ error } = await sb.from('faqs').insert(payload));
+  try {
+    let error;
+    if (id) {
+      ({ error } = await sb.from('faqs').update(payload).eq('id', id));
+    } else {
+      payload.sort_order = await nextSortOrder('faqs');
+      ({ error } = await sb.from('faqs').insert(payload));
+    }
+    if (error) { fail(faqError, '저장 실패', error); return; }
+    resetFaqForm();
+    loadFaqs();
+  } finally {
+    btn.disabled = false;
   }
-  if (error) { fail(faqError, '저장 실패', error); return; }
-  resetFaqForm();
-  loadFaqs();
 });
 
 async function deleteFaq(f) {
+  if (blockPreview(faqError)) return;
   if (!confirm(`"${f.question}" FAQ를 삭제할까요?`)) return;
   const { error } = await sb.from('faqs').delete().eq('id', f.id);
   if (error) { fail(faqError, '삭제 실패', error); return; }
+  if ($('#faqId').value === f.id) resetFaqForm();   /* 고치던 FAQ 를 지웠으면 폼도 비운다 */
   loadFaqs();
 }
 
@@ -563,6 +610,7 @@ if (settingsForm) {
 
   settingsForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (blockPreview(settingsError)) return;
     setError(settingsError, '');
     settingsOk.hidden = true;
 

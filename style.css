@@ -664,6 +664,10 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
 .search:focus-within{border-color:var(--blue-3);box-shadow:0 0 0 4px rgba(13,94,186,.08)}
 .search svg{width:16px;height:16px;fill:var(--muted);flex-shrink:0}
 .search input{border:0;background:none;outline:none;padding:11px 10px;width:100%;font-size:14.5px}
+/* 터치 기기: 16px 보다 작은 입력칸은 iOS 사파리가 누를 때 화면을 확대한다 */
+@media (pointer:coarse){
+  .search input,.pdf-lock-row input{font-size:16px}
+}
 
 .rows{border-top:1px solid var(--line)}
 .row{
@@ -737,6 +741,7 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
 .mat-summary{
   padding-bottom:18px;margin-bottom:4px;border-bottom:1px solid var(--line);
   font-size:15.5px;line-height:1.75;color:var(--ink);font-weight:500;
+  white-space:pre-line;
 }
 .mat-block{padding-top:18px}
 .mat-block h4{
@@ -800,8 +805,11 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
 
 @media (max-width:620px){
   /* 휴대폰: 윗줄 왼쪽에 분류, 오른쪽에 학기·도메인 / 아랫줄에 제목 */
-  .mat-item summary{flex-wrap:wrap;gap:8px 10px;padding:16px 18px}
+  .mat-item summary{flex-wrap:wrap;gap:8px 10px;padding:16px 44px 16px 18px;position:relative}
   .mat-item summary > .row-badge{margin-right:auto}
+  /* 펼침 화살표는 줄바꿈에 끼지 않게 오른쪽 위에 고정한다 */
+  .mat-item summary::after{position:absolute;right:20px;top:25px}
+  html[lang="en"] .mat-item .row-badge{min-width:0}
   .mat-item summary .mat-title{order:1;flex-basis:100%}
   .mat-body{padding:2px 16px 20px}
   .pdf-bar{padding:9px 12px}
@@ -891,6 +899,7 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
 .faq-item > p{
   margin:0;padding:0 26px 24px 66px;
   font-size:15px;line-height:1.85;color:var(--ink-2);
+  white-space:pre-line;   /* 관리자 페이지에서 입력한 줄바꿈을 살린다 */
 }
 
 /* 공지·FAQ가 딱 펴지지 않고 아래로 부드럽게 펼쳐지도록 */
@@ -902,6 +911,9 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
 }
 .notice-item[open]::details-content,
 .faq-item[open]::details-content{height:auto;opacity:1}
+/* 다른 항목을 펼쳐 이 항목이 자동으로 접힐 때는 바로 접는다 (script.js singleOpenDetails) */
+.notice-item.no-anim::details-content,
+.faq-item.no-anim::details-content{transition:none}
 
 .notice-cta{
   margin-top:16px;padding:20px 24px;border-radius:var(--r-md);
@@ -1104,7 +1116,8 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
   .nav-link{padding:9px 12px;font-size:14px}
 }
 
-@media (max-width:860px){
+/* 모바일 메뉴 — 영어 메뉴가 860~960px 에서 넘치지 않게 메뉴만 960px 에서 접는다 (script.js initNav 와 같은 기준) */
+@media (max-width:960px){
   :root{--nav-top:12px}
   .nav-toggle{display:flex}
   /* backdrop-filter 가 걸린 요소는 position:fixed 자식의 컨테이닝 블록이 되어
@@ -1146,6 +1159,9 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
   .nav-item:hover .nav-sub,.nav-item:focus-within .nav-sub{transform:none}
   .nav-item.is-open .nav-sub{display:block}
   .nav-sub a{padding:12px 16px;font-size:15px}
+}
+
+@media (max-width:860px){
   .grid-5{grid-template-columns:repeat(2,1fr)}
   .quote-grid{grid-template-columns:1fr}
   .footer-top{grid-template-columns:1fr 1fr;gap:32px}
