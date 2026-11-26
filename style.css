@@ -325,7 +325,7 @@ html[lang="en"] .mat-item .row-badge{min-width:118px}
   display:grid;grid-template-columns:auto 1fr;gap:88px;align-items:end;
 }
 .page-hero-note{
-  font-size:15.5px;line-height:1.85;color:var(--ink-2);max-width:46ch;padding-bottom:6px;
+  font-size:15.5px;line-height:1.85;color:var(--ink-2);max-width:40em;padding-bottom:6px;
 }
 .page-hero-note strong{font-weight:700;color:var(--ink)}
 
